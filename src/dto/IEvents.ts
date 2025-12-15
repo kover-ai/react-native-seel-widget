@@ -12,40 +12,29 @@ export enum EventTypeEnum {
   checkout_complete = 'checkout_complete',
 }
 
-export type EventType =
-  | EventTypeEnum.product_page_enter
-  | EventTypeEnum.product_page_exit
-  | EventTypeEnum.product_share
-  | EventTypeEnum.favorite_add
-  | EventTypeEnum.favorite_remove
-  | EventTypeEnum.cart_add
-  | EventTypeEnum.cart_remove
-  | EventTypeEnum.ra_checked
-  | EventTypeEnum.ra_unchecked
-  | EventTypeEnum.checkout_begin
-  | EventTypeEnum.checkout_complete;
+/**
+ * Event type union type
+ * Can be simplified to: export type EventType = EventTypeEnum;
+ */
+export type EventType = EventTypeEnum;
 
-// export type EventType =
-//   | 'product_page_enter'
-//   | 'product_page_exit'
-//   | 'product_share'
-//   | 'favorite_add'
-//   | 'favorite_remove'
-//   | 'cart_add'
-//   | 'cart_remove'
-//   | 'ra_checked'
-//   | 'ra_unchecked'
-//   | 'checkout_begin'
-//   | 'checkout_complete';
+/**
+ * Shipping address information for events
+ */
+export interface IEventShippingAddress {
+  shipping_address_state: string;
+  shipping_address_city: string;
+  shipping_address_zipcode: string;
+  shipping_address_country: string;
+}
 
+/**
+ * Event information object
+ * Each event_type has its own unique schema. For specific details, please refer to the custom pixel guide.
+ */
 export interface IEventInfo {
   user_email?: string;
-  shipping_address?: {
-    shipping_address_state: string;
-    shipping_address_city: string;
-    shipping_address_zipcode: string;
-    shipping_address_country: string;
-  };
+  shipping_address?: IEventShippingAddress;
   user_phone_number?: string;
 }
 

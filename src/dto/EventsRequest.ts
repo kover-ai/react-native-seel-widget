@@ -1,5 +1,23 @@
 import type { IEventInfo, IEvents, EventType } from './IEvents';
 
+/**
+ * Events Request/Response class
+ * Converts snake_case API format to camelCase for internal use
+ *
+ * @example
+ * ```ts
+ * const iRequest: IEvents = {
+ *   client_ip: '',
+ *   customer_id: '',
+ *   session_id: '',
+ *   event_source: '',
+ *   event_ts: '',
+ *   event_type: EventTypeEnum.product_page_exit,
+ * };
+ *
+ * const request: EventsRequest = new EventsRequest(iRequest);
+ * ```
+ */
 export default class EventsRequest {
   /**
    * Browser IP address
@@ -10,7 +28,7 @@ export default class EventsRequest {
    */
   customerId: string;
   /**
-   * Event Id
+   * Device Id
    */
   deviceId?: string;
   /**
@@ -18,15 +36,14 @@ export default class EventsRequest {
    */
   eventId?: string;
   /**
-   * Event information object \
-   * \
+   * Event information object
    * Each event_type has its own unique schema. For specific details, please refer to the custom pixel guide.
    */
   eventInfo?: IEventInfo;
   /**
    * Event source
    */
-  eventSource: string = '';
+  eventSource: string;
   /**
    * Event created timestamp in milliseconds
    */
@@ -46,25 +63,9 @@ export default class EventsRequest {
     this.deviceId = props.device_id;
     this.eventId = props.event_id;
     this.eventInfo = props.event_info;
-    this.eventSource = props.event_source;
+    this.eventSource = props.event_source || '';
     this.eventTs = props.event_ts;
     this.eventType = props.event_type;
     this.sessionId = props.session_id;
   }
 }
-
-/**
-```ts
-export const iRequest: IEvents = {
-  client_ip: '',
-  customer_id: '',
-  session_id: '',
-  event_source: '',
-  event_ts: '',
-  event_type: EventTypeEnum.product_page_exit,
-};
-
-export const request: EventsRequest = new EventsRequest(iRequest);
-
-```
- */
