@@ -15,6 +15,11 @@ export interface IQuotesResponseCustomer {
   last_name: string;
 }
 
+export interface II18N {
+  lang: string;
+  texts: Map<string, string>[];
+}
+
 /**
  * Extra information for quotes response
  */
@@ -26,6 +31,7 @@ export interface IQuotesResponseExtraInfo {
   shipping_fee?: number;
   terms_url?: string;
   widget_title?: string;
+  i18n?: II18N;
 }
 
 /**
