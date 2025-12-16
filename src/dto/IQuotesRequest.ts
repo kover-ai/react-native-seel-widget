@@ -86,7 +86,7 @@ export interface IQuotesRequestLineItem {
   /**
    * The final price of the product.
    */
-  final_price: number;
+  final_price: number | string;
   /**
    * The URLs of the product images.
    */
