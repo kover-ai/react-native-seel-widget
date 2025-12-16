@@ -16,7 +16,7 @@ export interface GetRequestParams {
 }
 
 SeelWidgetSDK.shared.configure({
-  apiKey: 'e2b4f9c8d3a7e6d2f5b0c4a1d8e9b6',
+  apiKey: 'yojct9zbwxok8961hr7e1s6i3fgmm1o1',
   environment: SeelEnvironment.Development,
 });
 const defaultXSeelApiKey: string = SeelWidgetSDK.shared.apiKey || '';
@@ -178,7 +178,6 @@ class Request {
 
       // Use Promise.race to handle timeout
       const response = await Promise.race([fetchPromise, timeoutPromise]);
-      console.warn('Line 179 response', response);
       // Check response status
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
