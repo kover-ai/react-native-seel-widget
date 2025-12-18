@@ -1,20 +1,23 @@
-import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'react-native-seel-widget';
+// import { createStaticNavigation } from '@react-navigation/native';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// import CartPage from './pages/cart-page';
 
-const result = multiply(3, 7);
+import SettlementPage from './pages/settlement-page';
+
+// const RootStack = createNativeStackNavigator({
+//   screens: {
+//     Cart: {
+//       screen: CartPage,
+//     },
+//     Settlement: {
+//       screen: SettlementPage,
+//     },
+//   },
+//   initialRouteName: 'Cart',
+// });
+
+// const Navigation = createStaticNavigation(RootStack);
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
-    </View>
-  );
+  return <SettlementPage />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
