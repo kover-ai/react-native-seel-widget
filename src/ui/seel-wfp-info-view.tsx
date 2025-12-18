@@ -1,57 +1,58 @@
-import { ScrollView } from 'react-native';
 import {
-  StyleSheet,
-  View,
-  ImageBackground,
-  Text,
   Image,
+  ImageBackground,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
+  useWindowDimensions,
 } from 'react-native';
 
+import CoverageInfoFooter from './coverage-info-footer';
+import KeyValue from '../constants/key_value';
+
+export type Domain = '' | 'US' | 'EU';
+
 interface SeelWFPInfoViewProps {
-  title: string;
-  price: string;
-  continent: '' | 'US' | 'EU';
+  domain: Domain;
+  widgetTitle: string;
   coverageDetailsText: string[];
+  termsUrl: string;
+  privacyPolicyUrl: string;
+  dictionary: any;
   onClickClose: () => void;
+  onChangeOptedInValue: (value: boolean) => void;
 }
 
 export default function SeelWFPInfoView({
-  title = '',
-  price = '',
-  continent = '',
+  domain = '',
+  widgetTitle = '',
   coverageDetailsText = [],
+  termsUrl = '',
+  privacyPolicyUrl = '',
+  dictionary = {},
   onClickClose = () => {},
+  onChangeOptedInValue = (_: boolean) => {},
 }: SeelWFPInfoViewProps) {
   const spacing = 12;
   const margin = 6;
   const marginTop = 15;
-  const h1 = "We've Got You Covered";
+
+  const windowWidth = useWindowDimensions().width;
+  const imageWidth = windowWidth;
+  const imageHeight = imageWidth;
   return (
     <View style={[defaultStyles.container]}>
       <ImageBackground
-        resizeMode="center"
+        resizeMode="cover"
         source={require('../assets/images/background_image.jpg')}
-        style={defaultStyles.imageBackground}
-      >
-        {/* <View style={[{ padding: spacing }, defaultStyles.titleContainer]}>
-          <View style={defaultStyles.seelLogoContainer}>
-            <Image
-              source={require('../assets/images/seel_logo.png')}
-              style={defaultStyles.seelLogoIcon}
-            />
-            <TouchableOpacity>
-              <Image
-                source={require('../assets/images/close_white.png')}
-                style={defaultStyles.closeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-          <Text style={[defaultStyles.h1]}>{h1}</Text>
-          <Text style={[{ marginTop: margin }, defaultStyles.h3]}>{price}</Text>
-        </View>
-        <View></View> */}
-      </ImageBackground>
+        style={[
+          defaultStyles.imageBackground,
+          { width: imageWidth, height: imageHeight },
+        ]}
+      />
       <View style={defaultStyles.absoluteContainer}>
         <View style={[{ padding: spacing }, defaultStyles.titleContainer]}>
           <View style={defaultStyles.seelLogoContainer}>
@@ -66,13 +67,15 @@ export default function SeelWFPInfoView({
               />
             </TouchableOpacity>
           </View>
-          <Text style={[defaultStyles.h1]}>{h1}</Text>
+          <Text style={[defaultStyles.h1]}>
+            {dictionary[KeyValue.coverage_title] ?? ''}
+          </Text>
           <Text style={[{ marginTop: margin }, defaultStyles.h3]}>
-            Only {price} for Complete Peace of Mind
+            {dictionary[KeyValue.pricing_message] ?? ''}
           </Text>
         </View>
         <View style={[{ padding: spacing }, defaultStyles.contentContainer]}>
-          <Text style={defaultStyles.h2}>{title}</Text>
+          <Text style={defaultStyles.h2}>{widgetTitle}</Text>
           <View
             style={[defaultStyles.rowContainer, defaultStyles.centerContainer]}
           >
@@ -87,12 +90,12 @@ export default function SeelWFPInfoView({
                 defaultStyles.covered,
               ]}
             >
-              What's Covered
+              {dictionary[KeyValue.whats_covered_title] ?? ''}
             </Text>
           </View>
           <ScrollView
             horizontal={false}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
             style={[defaultStyles.scrollViewContainer]}
           >
             <View
@@ -101,15 +104,14 @@ export default function SeelWFPInfoView({
                 defaultStyles.scrollViewContentContainer,
               ]}
             >
-              {continent === 'US' ? (
+              {domain === 'US' ? (
                 <Text style={defaultStyles.h4}>
-                  Get a Full Refund, No Questions Asked
+                  {dictionary[KeyValue.get_full_refund] ?? ''}
                 </Text>
               ) : null}
-              {continent === 'EU' ? (
+              {domain === 'EU' /*|| domain === 'IE'*/ ? (
                 <Text style={defaultStyles.h4}>
-                  In addition to your standard coverage under consumer
-                  protection laws for:
+                  {dictionary[KeyValue.standard_coverage_intro] ?? ''}
                 </Text>
               ) : null}
               {coverageDetailsText &&
@@ -130,7 +132,7 @@ export default function SeelWFPInfoView({
                   );
                 })}
             </View>
-            {continent === 'US' ? (
+            {domain === 'US' ? (
               <View
                 style={[
                   { marginTop: spacing },
@@ -139,20 +141,22 @@ export default function SeelWFPInfoView({
               >
                 <Text style={defaultStyles.h4}>Easy Resolution</Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  Resolve your issues with just a few clicks
+                  {dictionary[KeyValue.resolve_with_clicks] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: marginTop }, defaultStyles.h4]}>
-                  Complete Peace of Mind
+                  {dictionary[KeyValue.complete_peace_of_mind] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Zero-risk on your order with our protection
+                  {dictionary[KeyValue.zero_risk] && '• '}
+                  {dictionary[KeyValue.zero_risk] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Get your refund promptly
+                  {dictionary[KeyValue.get_refund_promptly] && '• '}
+                  {dictionary[KeyValue.get_refund_promptly] ?? ''}
                 </Text>
               </View>
             ) : null}
-            {continent === 'EU' ? (
+            {domain === 'EU' /*|| domain === 'IE'*/ ? (
               <View
                 style={[
                   { marginTop: spacing },
@@ -160,34 +164,44 @@ export default function SeelWFPInfoView({
                 ]}
               >
                 <Text style={defaultStyles.h4}>
-                  Worry-Fee Purchase® provides the following protection:
+                  {dictionary[KeyValue.additional_coverage_intro] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Extended return windows – Seven (7) additional days to
-                  decide 
+                  {dictionary[KeyValue.additional_coverage_extended_return] &&
+                    '• '}
+                  {dictionary[KeyValue.additional_coverage_extended_return] ??
+                    ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Post-delivery theft coverage – Protection for packages
-                  stolen or missing after delivery
+                  {dictionary[KeyValue.additional_coverage_post_delivery] &&
+                    '• '}
+                  {dictionary[KeyValue.additional_coverage_post_delivery] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Delay compensation if the items are not delivered within 10
-                  days
+                  {dictionary[KeyValue.additional_coverage_delay] && '• '}
+                  {dictionary[KeyValue.additional_coverage_delay] ?? ''}
                 </Text>
 
                 <Text style={[{ marginTop: marginTop }, defaultStyles.h4]}>
-                  Shoppers also get white glove concierge help with post
-                  purchase issues and mishaps;
+                  {dictionary[KeyValue.concierge_intro] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Access to desktop and mobile app
+                  {dictionary[KeyValue.concierge_app_access] && '• '}
+                  {dictionary[KeyValue.concierge_app_access] ?? ''}
                 </Text>
                 <Text style={[{ marginTop: margin }, defaultStyles.p]}>
-                  • Live, instant support
+                  {dictionary[KeyValue.concierge_support] && '• '}
+                  {dictionary[KeyValue.concierge_support] ?? ''}
                 </Text>
               </View>
             ) : null}
           </ScrollView>
+          <CoverageInfoFooter
+            termsUrl={termsUrl}
+            privacyPolicyUrl={privacyPolicyUrl}
+            dictionary={dictionary}
+            onChangeOptedInValue={onChangeOptedInValue}
+          />
         </View>
       </View>
     </View>
@@ -212,8 +226,9 @@ const defaultStyles = StyleSheet.create({
   },
   imageBackground: {
     width: '100%',
+    // flex: 1,
+    // resizeMode: 'cover',
     aspectRatio: 1,
-    // backgroundColor: '#ffffff',
   },
   absoluteContainer: {
     flexDirection: 'column',
@@ -243,7 +258,9 @@ const defaultStyles = StyleSheet.create({
     marginTop: 15,
     color: '#ffffff',
     fontSize: 20,
-    fontFamily: 'Inter',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
     fontStyle: 'normal',
     fontWeight: 800,
   },
@@ -251,7 +268,9 @@ const defaultStyles = StyleSheet.create({
     height: 36,
     color: '#000000',
     fontSize: 24,
-    fontFamily: 'Inter',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
     fontStyle: 'normal',
     fontWeight: 600,
     textAlign: 'center',
@@ -259,16 +278,20 @@ const defaultStyles = StyleSheet.create({
   h3: {
     color: '#ffffff',
     fontSize: 16,
-    fontFamily: 'Inter',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
     fontStyle: 'normal',
     fontWeight: 500,
   },
   h4: {
     color: '#000000',
     fontSize: 14,
-    fontFamily: 'Inter',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
     fontStyle: 'normal',
-    fontWeight: 600,
+    fontWeight: '600',
   },
   contentContainer: {
     marginTop: 15,
@@ -307,7 +330,9 @@ const defaultStyles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     minHeight: 20,
-    fontFamily: 'Inter',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
     fontStyle: 'normal',
     fontWeight: 400,
   },
