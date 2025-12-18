@@ -9,8 +9,13 @@ import {
 } from 'react-native';
 import type { TextStyle, ViewStyle } from 'react-native';
 import KeyValue from '../constants/key_value';
+import GradientAnimationText, {
+  type GradientAnimationTextRef,
+} from './gradient-animation-text';
+import { useRef } from 'react';
 
 export interface SeelWFPTitleViewProps {
+  status: string;
   /**
    * Title text to display
    */
@@ -74,6 +79,7 @@ export interface SeelWFPTitleViewProps {
 }
 
 export default function SeelWFPTitleView({
+  status,
   title,
   price,
   containerStyle,
@@ -90,6 +96,8 @@ export default function SeelWFPTitleView({
   onClickInfoIcon,
   onChangeOptedInValue = (_: boolean) => {},
 }: SeelWFPTitleViewProps) {
+  const gradientViewRef = useRef<GradientAnimationTextRef>(null);
+
   const colorScheme = useColorScheme();
   const isDark = false && colorScheme === 'dark';
 
@@ -142,10 +150,10 @@ export default function SeelWFPTitleView({
   };
 
   const paddingTop = 4;
-  const paddingLeft = 20 + 12;
+  const paddingBottom = 4;
+  const paddingLeft = 22 + 6;
   const alignItems = 'flex-start';
   const renderTickView = (value: string) => {
-    const paddingBottom = 4;
     return (
       <View
         style={[
@@ -163,7 +171,12 @@ export default function SeelWFPTitleView({
       </View>
     );
   };
-
+  const gradientContainerStyle = {
+    width: 42,
+    height: 20,
+    borderRadius: 4,
+    backgroundColor: '#999999',
+  };
   return (
     <View style={_constainerStyle}>
       <View style={defaultStyles.rowContainer}>
@@ -190,13 +203,35 @@ export default function SeelWFPTitleView({
             <Text style={_priceStyle} adjustsFontSizeToFit>
               for - {price}
             </Text>
+            <View>
+              <GradientAnimationText
+                ref={gradientViewRef}
+                containerStyle={gradientContainerStyle}
+                initialVisible={true}
+                animationDuration={5000}
+              />
+            </View>
             {renderInfoButton()}
           </View>
         </View>
       </View>
       <View style={[defaultStyles.columnContainer]}>
-        {renderTickView(dictionary[KeyValue.wfp_subtitle] ?? '')}
-        {renderTickView(dictionary[KeyValue.wfp_description] ?? '')}
+        {status === 'accepted' &&
+          renderTickView(dictionary[KeyValue.wfp_subtitle] ?? '')}
+        {status === 'accepted' &&
+          renderTickView(dictionary[KeyValue.wfp_description] ?? '')}
+        {status === 'rejected' && (
+          <View
+            style={[
+              defaultStyles.rowContainer,
+              { paddingTop, paddingBottom, paddingLeft, alignItems },
+            ]}
+          >
+            <Text style={defaultStyles.tickText}>
+              {dictionary[KeyValue.ineligible_title] ?? ''}
+            </Text>
+          </View>
+        )}
       </View>
       <View
         style={[
