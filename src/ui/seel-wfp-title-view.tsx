@@ -13,6 +13,7 @@ import GradientAnimationText, {
   type GradientAnimationTextRef,
 } from './gradient-animation-text';
 import { useRef } from 'react';
+import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
 
 export interface SeelWFPTitleViewProps {
   status: string;
@@ -75,6 +76,7 @@ export interface SeelWFPTitleViewProps {
   pressable?: boolean;
   optedIn: boolean;
   dictionary: any;
+  loadingStatue: NetworkRequestStatueEnum;
   onChangeOptedInValue: (optedIn: boolean) => void;
 }
 
@@ -93,6 +95,7 @@ export default function SeelWFPTitleView({
   darkPriceStyle,
   optedIn = false,
   dictionary = {},
+  loadingStatue = NetworkRequestStatueEnum.Idle,
   onClickInfoIcon,
   onChangeOptedInValue = (_: boolean) => {},
 }: SeelWFPTitleViewProps) {
@@ -172,10 +175,11 @@ export default function SeelWFPTitleView({
     );
   };
   const gradientContainerStyle = {
-    width: 42,
-    height: 20,
+    marginLeft: 4,
+    width: 60,
+    height: 18,
     borderRadius: 4,
-    backgroundColor: '#999999',
+    backgroundColor: '#e3e3e3',
   };
   return (
     <View style={_constainerStyle}>
@@ -200,17 +204,20 @@ export default function SeelWFPTitleView({
             <Text style={[_titleStyle]} adjustsFontSizeToFit>
               {title}
             </Text>
-            <Text style={_priceStyle} adjustsFontSizeToFit>
-              for - {price}
-            </Text>
-            <View>
-              <GradientAnimationText
-                ref={gradientViewRef}
-                containerStyle={gradientContainerStyle}
-                initialVisible={true}
-                animationDuration={5000}
-              />
-            </View>
+            {/* eslint-disable-next-line no-bitwise */}
+            {(loadingStatue & NetworkRequestStatueEnum.Loading) === 0 ? (
+              <Text style={_priceStyle} adjustsFontSizeToFit>
+                for - {price}
+              </Text>
+            ) : (
+              <View>
+                <GradientAnimationText
+                  ref={gradientViewRef}
+                  containerStyle={gradientContainerStyle}
+                  animationDuration={5000}
+                />
+              </View>
+            )}
             {renderInfoButton()}
           </View>
         </View>
@@ -318,6 +325,7 @@ const defaultStyles = StyleSheet.create({
   price: {
     marginLeft: 4,
     fontSize: 10,
+    lineHeight: 20,
     fontWeight: 'regular',
   },
   lightPriceStyle: {
