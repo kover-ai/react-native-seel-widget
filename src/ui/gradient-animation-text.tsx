@@ -1,4 +1,10 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import type { TextStyle, ViewStyle } from 'react-native';
 
@@ -16,28 +22,28 @@ export interface GradientAnimationTextProps {
    */
   containerStyle?: ViewStyle;
   /**
-   * Initial visibility state (default: false)
+   * Whether to start animation automatically (default: true)
    */
-  initialVisible?: boolean;
+  autoStart?: boolean;
   /**
-   * Animation duration in milliseconds (default: 300)
+   * Animation duration in milliseconds for one cycle (default: 1500)
    */
   animationDuration?: number;
+  /**
+   * Gradient colors for loading effect (default: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0)'])
+   */
+  gradientColors?: string[];
 }
 
 export interface GradientAnimationTextRef {
   /**
-   * Show the text with gradient animation
+   * Start the loading animation
    */
-  show: () => void;
+  start: () => void;
   /**
-   * Hide the text with gradient animation
+   * Stop the loading animation
    */
-  hide: () => void;
-  /**
-   * Toggle visibility
-   */
-  toggle: () => void;
+  stop: () => void;
 }
 
 const GradientAnimationText = forwardRef<
@@ -49,78 +55,93 @@ const GradientAnimationText = forwardRef<
       text = '',
       textStyle,
       containerStyle,
-      initialVisible = true,
-      animationDuration = 300,
+      autoStart = true,
+      animationDuration = 1500,
+      gradientColors = [
+        'rgba(255, 255, 255, 0.3)',
+        'rgba(255, 255, 255, 0.6)',
+        'rgba(255, 255, 255, 0.3)',
+      ],
     },
     ref
   ) => {
-    const [visible, setVisible] = useState(initialVisible);
-    const gradientWidth = useRef(
-      new Animated.Value(initialVisible ? 0 : 100)
-    ).current;
+    // Use a larger range for smoother animation across the container
+    const translateX = useRef(new Animated.Value(-300)).current;
+    const animationRef = useRef<any>(null);
+
+    const startAnimation = useCallback(() => {
+      // Stop existing animation if any
+      if (animationRef.current) {
+        animationRef.current.stop();
+      }
+      // Reset position to start (off-screen left)
+      translateX.setValue(-300);
+      // Create loop animation (move from left to right)
+      animationRef.current = Animated.loop(
+        Animated.timing(translateX, {
+          toValue: 300,
+          duration: animationDuration,
+          useNativeDriver: true,
+        })
+      );
+      animationRef.current.start();
+    }, [animationDuration, translateX]);
+
+    const stopAnimation = useCallback(() => {
+      if (animationRef.current) {
+        animationRef.current.stop();
+        animationRef.current = null;
+      }
+    }, []);
 
     useImperativeHandle(ref, () => ({
-      show: () => {
-        setVisible(true);
-        Animated.timing(gradientWidth, {
-          toValue: 0,
-          duration: animationDuration,
-          useNativeDriver: false,
-        }).start();
-      },
-      hide: () => {
-        Animated.timing(gradientWidth, {
-          toValue: 1000, // Large value to cover the text
-          duration: animationDuration,
-          useNativeDriver: false,
-        }).start(() => {
-          setVisible(false);
-        });
-      },
-      toggle: () => {
-        if (visible) {
-          // Hide
-          Animated.timing(gradientWidth, {
-            toValue: 1000,
-            duration: animationDuration,
-            useNativeDriver: false,
-          }).start(() => {
-            setVisible(false);
-          });
-        } else {
-          // Show
-          setVisible(true);
-          Animated.timing(gradientWidth, {
-            toValue: 0,
-            duration: animationDuration,
-            useNativeDriver: false,
-          }).start();
-        }
-      },
+      start: startAnimation,
+      stop: stopAnimation,
     }));
 
-    if (!visible) {
-      return null;
-    }
+    useEffect(() => {
+      if (autoStart) {
+        startAnimation();
+      }
+      return () => {
+        stopAnimation();
+      };
+    }, [autoStart, startAnimation, stopAnimation]);
 
     return (
       <View style={[styles.container, containerStyle]}>
         <View style={styles.textContainer}>
           <Text style={[styles.text, textStyle]}>{text}</Text>
-          {/* Gradient mask layer - from left to right */}
+          {/* Gradient loading effect - moving from left to right */}
           <Animated.View
             style={[
               styles.gradientMask,
               {
-                width: gradientWidth,
+                transform: [{ translateX }],
               },
             ]}
             pointerEvents="none"
           >
-            {/* Create gradient effect: from transparent to white */}
+            {/* Create gradient effect with three colors */}
             <View style={styles.gradientOverlay}>
-              <View style={styles.gradientLeft} />
-              <View style={styles.gradientRight} />
+              <View
+                style={[
+                  styles.gradientSection,
+                  { backgroundColor: gradientColors[0] },
+                ]}
+              />
+              <View
+                style={[
+                  styles.gradientSection,
+                  { backgroundColor: gradientColors[1] },
+                ]}
+              />
+              <View
+                style={[
+                  styles.gradientSection,
+                  { backgroundColor: gradientColors[2] },
+                ]}
+              />
             </View>
           </Animated.View>
         </View>
@@ -128,8 +149,6 @@ const GradientAnimationText = forwardRef<
     );
   }
 );
-
-// GradientAnimationText.displayName = 'GradientAnimationText';
 
 const styles = StyleSheet.create({
   container: {
@@ -148,22 +167,18 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     bottom: 0,
+    width: 300,
     height: '100%',
     overflow: 'hidden',
   },
   gradientOverlay: {
     flex: 1,
     flexDirection: 'row',
-    width: '100%',
+    width: 300,
     height: '100%',
   },
-  gradientLeft: {
+  gradientSection: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0)',
-  },
-  gradientRight: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
 });
 
