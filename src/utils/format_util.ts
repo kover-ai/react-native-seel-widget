@@ -1,4 +1,4 @@
-export const MoneyFormat = (money: any, currency: string, options: any) => {
+export const moneyFormat = (money: any, currency: string, options: any) => {
   try {
     // 解构options参数，提供默认值
     const { showCurrency = true, locale = '', fallbackValue = '-' } = options;
