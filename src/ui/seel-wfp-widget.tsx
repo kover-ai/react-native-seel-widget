@@ -17,6 +17,10 @@ import type IQuotesResponse from '../dto/IQuotesResponse';
 import { moneyFormat } from '../utils/format_util';
 import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
 
+export interface SeelWFPWidgetRef {
+  setup(quote: IQuotesRequest): void;
+}
+
 interface SeelWFPWidgetProps {
   domain: Domain;
   onChangeValue: ({
@@ -262,4 +266,4 @@ const defaultStyles = StyleSheet.create({
   },
 });
 
-export default forwardRef(SeelWFPWidget);
+export default forwardRef<SeelWFPWidgetRef, SeelWFPWidgetProps>(SeelWFPWidget);
