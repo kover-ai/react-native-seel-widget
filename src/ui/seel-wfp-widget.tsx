@@ -13,27 +13,31 @@ import { createQuote } from '../utils/http_util';
 import { writeOptedIn } from '../utils/storage_util';
 import type { IQuotesRequest } from '../dto/IQuotesRequest';
 import KeyValue from '../constants/key_value';
+import type IQuotesResponse from '../dto/IQuotesResponse';
+import { moneyFormat } from '../utils/format_util';
+import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
 
 interface SeelWFPWidgetProps {
   domain: Domain;
   onChangeValue: ({
     optedIn,
-    price,
+    quotesResponse,
   }: {
     optedIn: boolean;
-    price: string;
+    quotesResponse?: IQuotesResponse;
   }) => void;
 }
 
 const SeelWFPWidget = (
   {
     domain = '',
-    onChangeValue = ({ optedIn, price }) => {
-      console.log(optedIn, price);
+    onChangeValue = ({ optedIn, quotesResponse }) => {
+      console.log(optedIn, quotesResponse);
     },
   }: SeelWFPWidgetProps,
   ref: any
 ) => {
+  const [quotesResponse, setQuotesResponse] = useState<IQuotesResponse>();
   const [termsUrl, setTermsUrl] = useState('');
   const [privacyPolicyUrl, setPrivacyPolicyUrl] = useState('');
   const [optedIn, setOptedIn] = useState(false);
@@ -43,7 +47,9 @@ const SeelWFPWidget = (
   const [dictionary, setDictionary] = useState<any>({});
   const [price, setPrice] = useState('');
   const [status, setStatus] = useState('');
-  const [coverageDetailsText, setCoverageDetailsText] = useState<string[]>([]);
+  const [loadingStatue, setLoadingStatus] = useState<NetworkRequestStatueEnum>(
+    NetworkRequestStatueEnum.Idle
+  );
 
   useImperativeHandle(
     ref,
@@ -56,14 +62,24 @@ const SeelWFPWidget = (
   );
   async function fetchNetworkData(quote: IQuotesRequest) {
     try {
+      setLoadingStatus(NetworkRequestStatueEnum.Loading);
       const response = await createQuote(quote);
+      setLoadingStatus(NetworkRequestStatueEnum.Success);
+      setQuotesResponse(response);
       setStatus(response.status ?? '');
       // setStatus('rejected');
 
+      setOptedIn(response.is_default_on);
+
       if (response.status === 'accepted') {
         const extraInfo = response.extra_info ?? {};
+        const currency: string = response.currency;
         const _title: string = extraInfo?.widget_title ?? '';
-        const _price: string = response.price?.toString();
+        const _price: string = moneyFormat(
+          response.price?.toString(),
+          currency,
+          {}
+        );
         const dict: any = {};
         try {
           (response.extra_info?.i18n?.texts ?? []).forEach((kv: any) => {
@@ -90,7 +106,6 @@ const SeelWFPWidget = (
         setWidgetTitle(
           (extraInfo.widget_title && extraInfo.widget_title) || ''
         );
-        setCoverageDetailsText(extraInfo?.coverage_details_text ?? []);
         setVisible(true);
       } else {
         setModalVisible(false);
@@ -98,6 +113,7 @@ const SeelWFPWidget = (
       }
     } catch (error) {
       console.warn(error);
+      setLoadingStatus(NetworkRequestStatueEnum.Failed);
       setModalVisible(false);
       setVisible(false);
     }
@@ -107,8 +123,8 @@ const SeelWFPWidget = (
   //   fetchNetworkData();
   // }, [optedIn]);
   useEffect(() => {
-    onChangeValue({ optedIn, price });
-  }, [onChangeValue, optedIn, price]);
+    onChangeValue({ optedIn, quotesResponse });
+  }, [onChangeValue, optedIn, quotesResponse]);
 
   const renderIneligibleModalView = () => {
     const margin = 12;
@@ -158,10 +174,12 @@ const SeelWFPWidget = (
       {visible ? (
         <View>
           <SeelWFPTitleView
+            status={status}
             title={widgetTitle}
             price={price}
             optedIn={optedIn}
             dictionary={dictionary}
+            loadingStatue={loadingStatue}
             onClickInfoIcon={() => {
               setModalVisible(true);
             }}
@@ -169,7 +187,7 @@ const SeelWFPWidget = (
               if (status === 'accepted') {
                 writeOptedIn(value);
                 setOptedIn(value);
-                onChangeValue({ optedIn, price });
+                onChangeValue({ optedIn, quotesResponse });
               } else {
                 setModalVisible(true);
               }
@@ -188,7 +206,6 @@ const SeelWFPWidget = (
                 widgetTitle={widgetTitle}
                 dictionary={dictionary}
                 domain={domain}
-                coverageDetailsText={coverageDetailsText}
                 termsUrl={termsUrl}
                 privacyPolicyUrl={privacyPolicyUrl}
                 onClickClose={() => {
@@ -198,10 +215,10 @@ const SeelWFPWidget = (
                   setModalVisible(false);
                   if (status === 'accepted') {
                     setOptedIn(value);
-                    onChangeValue({ optedIn, price });
+                    onChangeValue({ optedIn, quotesResponse });
                   } else {
                     setOptedIn(false);
-                    onChangeValue({ optedIn, price });
+                    onChangeValue({ optedIn, quotesResponse });
                   }
                 }}
               />
