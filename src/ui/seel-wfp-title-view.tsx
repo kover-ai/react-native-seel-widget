@@ -1,14 +1,14 @@
-import { useState } from 'react';
 import {
   Image,
+  Platform,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
   useColorScheme,
 } from 'react-native';
 import type { TextStyle, ViewStyle } from 'react-native';
+import KeyValue from '../constants/key_value';
 
 export interface SeelWFPTitleViewProps {
   /**
@@ -68,6 +68,9 @@ export interface SeelWFPTitleViewProps {
    * Whether the title is pressable (default: true if onClickInfoIcon is provided)
    */
   pressable?: boolean;
+  optedIn: boolean;
+  dictionary: any;
+  onChangeOptedInValue: (optedIn: boolean) => void;
 }
 
 export default function SeelWFPTitleView({
@@ -82,10 +85,13 @@ export default function SeelWFPTitleView({
   priceStyle,
   lightPriceStyle,
   darkPriceStyle,
+  optedIn = false,
+  dictionary = {},
   onClickInfoIcon,
+  onChangeOptedInValue = (_: boolean) => {},
 }: SeelWFPTitleViewProps) {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = false && colorScheme === 'dark';
 
   const _constainerStyle = [
     defaultStyles.container,
@@ -135,39 +141,79 @@ export default function SeelWFPTitleView({
     );
   };
 
-  const [isEnabled, setIsEnabled] = useState(false);
-
-  const toggleSwitch = () =>
-    setIsEnabled((previousState: any) => !previousState);
+  const paddingTop = 4;
+  const paddingLeft = 20 + 12;
+  const alignItems = 'flex-start';
+  const renderTickView = (value: string) => {
+    const paddingBottom = 4;
+    return (
+      <View
+        style={[
+          defaultStyles.rowContainer,
+          { paddingTop, paddingBottom, paddingLeft, alignItems },
+        ]}
+      >
+        <View style={defaultStyles.tickIconContainer}>
+          <Image
+            style={defaultStyles.tickIcon}
+            source={require('../assets/images/tick_small_minor.png')}
+          />
+        </View>
+        <Text style={defaultStyles.tickText}>{value}</Text>
+      </View>
+    );
+  };
 
   return (
     <View style={_constainerStyle}>
-      <Image
-        style={defaultStyles.seelIcon}
-        source={require('../assets/images/seel_icon.png')}
-      />
-      <View style={defaultStyles.middleContainer}>
-        <View style={defaultStyles.titleContainer}>
-          <Text style={_titleStyle}>{title}</Text>
-          <Text style={_priceStyle}>for - {price}</Text>
-          {renderInfoButton()}
+      <View style={defaultStyles.rowContainer}>
+        <TouchableOpacity
+          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+          onPress={() => {
+            onChangeOptedInValue(!optedIn);
+          }}
+        >
+          <Image
+            source={
+              optedIn
+                ? require('../assets/images/checkbox_selected.png')
+                : require('../assets/images/checkbox_normal.png')
+            }
+            style={defaultStyles.checkboxIcon}
+          />
+        </TouchableOpacity>
+        <View style={defaultStyles.middleContainer}>
+          <View style={defaultStyles.titleContainer}>
+            <Text style={[_titleStyle]} adjustsFontSizeToFit>
+              {title}
+            </Text>
+            <Text style={_priceStyle} adjustsFontSizeToFit>
+              for - {price}
+            </Text>
+            {renderInfoButton()}
+          </View>
         </View>
+      </View>
+      <View style={[defaultStyles.columnContainer]}>
+        {renderTickView(dictionary[KeyValue.wfp_subtitle] ?? '')}
+        {renderTickView(dictionary[KeyValue.wfp_description] ?? '')}
+      </View>
+      <View
+        style={[
+          defaultStyles.rowContainer,
+          { paddingTop, paddingLeft, alignItems },
+        ]}
+      >
         <View style={defaultStyles.poweredByContainer}>
-          <Text style={_poweredByText}>{'Powered by'}</Text>
+          <Text style={[_poweredByText]}>
+            {dictionary[KeyValue.powered_by] ?? 'Powered by'}
+          </Text>
           <Image
             style={defaultStyles.seelWordIcon}
             source={require('../assets/images/seel_word.png')}
           />
         </View>
       </View>
-      <Switch
-        style={{ transform: [{ scaleX: 0.6 }, { scaleY: 0.6 }] }}
-        trackColor={{ false: '#767577', true: '#2121C4' }}
-        thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
-        ios_backgroundColor="#3e3e3e"
-        onValueChange={toggleSwitch}
-        value={isEnabled}
-      />
     </View>
   );
 }
@@ -175,9 +221,9 @@ export default function SeelWFPTitleView({
 const defaultStyles = StyleSheet.create({
   container: {
     width: '100%',
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    padding: 12,
+    padding: 24,
   },
   lightContainerStyle: {
     backgroundColor: 'white',
@@ -185,9 +231,29 @@ const defaultStyles = StyleSheet.create({
   darkContainerStyle: {
     backgroundColor: '#121212',
   },
+  columnContainer: {
+    width: '100%',
+    flexDirection: 'column',
+  },
+  rowContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+  },
+  checkboxContainer: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxIcon: {
+    width: 16.5,
+    height: 16.5,
+  },
   seelIcon: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
   },
   middleContainer: {
     flex: 1,
@@ -200,8 +266,13 @@ const defaultStyles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#000000',
+    fontFamily: Platform.select({
+      ios: 'Open Sans',
+    }),
+    fontSize: 15,
+    fontWeight: 700,
+    lineHeight: 20,
   },
   lightTitleStyle: {
     color: '#000000',
@@ -245,8 +316,27 @@ const defaultStyles = StyleSheet.create({
   dartPoweredByText: {
     color: 'white',
   },
+  tickIconContainer: {
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tickIcon: {
+    width: 15,
+    height: 15,
+  },
+  tickText: {
+    color: '#191919',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
+    fontSize: 11,
+    fontWeight: 300,
+    lineHeight: 18,
+  },
   seelWordIcon: {
-    width: 20,
-    height: 10,
+    width: 24,
+    height: 12,
   },
 });
