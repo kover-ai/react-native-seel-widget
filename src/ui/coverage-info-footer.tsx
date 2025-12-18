@@ -1,27 +1,92 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Linking,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from 'react-native';
+import KeyValue from '../constants/key_value';
 
-export default function CoverageInfoFooter() {
+interface CoverageInfoFooterProps {
+  termsUrl: string;
+  privacyPolicyUrl: string;
+  dictionary: any;
+  onChangeOptedInValue: (value: boolean) => void;
+}
+
+export default function CoverageInfoFooter({
+  termsUrl = '',
+  privacyPolicyUrl = '',
+  dictionary = {},
+  onChangeOptedInValue = (_: boolean) => {},
+}: CoverageInfoFooterProps) {
+  const colorScheme = useColorScheme();
+  const isDark = false && colorScheme === 'dark';
+
+  const _poweredByText = [
+    defaultStyles.poweredByText,
+    isDark ? defaultStyles.dartPoweredByText : defaultStyles.lightPoweredByText,
+  ];
   return (
     <View style={[defaultStyles.container]}>
-      <TouchableOpacity style={defaultStyles.optedInButton}>
+      <TouchableOpacity
+        style={defaultStyles.optedInButton}
+        onPress={() => {
+          onChangeOptedInValue(true);
+        }}
+      >
         <Text style={defaultStyles.optedInButtonTitle}>
-          {'Opt-In Now for Full Protection'}
+          {dictionary[KeyValue.cta_secure_purchase] ??
+            'Secure Your Purchase Now'}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={defaultStyles.noNeedButton}>
-        <Text style={defaultStyles.noNeedButtonTitle}>{'No Need'}</Text>
+      <TouchableOpacity
+        style={defaultStyles.noNeedButton}
+        hitSlop={{ top: 8, bottom: 8 }}
+        onPress={() => {
+          onChangeOptedInValue(false);
+        }}
+      >
+        <Text style={defaultStyles.noNeedButtonTitle}>
+          {dictionary[KeyValue.cta_continue_without] ??
+            'Continue Without Protection'}
+        </Text>
       </TouchableOpacity>
       <View style={defaultStyles.horizontalStackView}>
-        <TouchableOpacity style={defaultStyles.privacyPolicyButton}>
+        <TouchableOpacity
+          style={defaultStyles.privacyPolicyButton}
+          hitSlop={{ top: 14 }}
+          onPress={() => {
+            Linking.openURL(privacyPolicyUrl);
+          }}
+        >
           <Text style={defaultStyles.privacyPolicyButtonTitle}>
-            {'Privacy Policy'}
+            {dictionary[KeyValue.privacy_policy] ?? 'Privacy Policy'}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={defaultStyles.termsButton}>
+        <TouchableOpacity
+          style={defaultStyles.termsButton}
+          hitSlop={{ top: 14 }}
+          onPress={() => {
+            Linking.openURL(termsUrl);
+          }}
+        >
           <Text style={defaultStyles.termsButtonTitle}>
-            {'Terms of Service'}
+            {dictionary[KeyValue.terms_of_service] ?? 'Terms of Service'}
           </Text>
         </TouchableOpacity>
+      </View>
+      <View style={defaultStyles.poweredByContainer}>
+        <Text style={_poweredByText}>
+          {dictionary[KeyValue.powered_by] ?? 'Powered by'}
+        </Text>
+        <Image
+          style={defaultStyles.seelWordIcon}
+          source={require('../assets/images/seel_word.png')}
+        />
       </View>
     </View>
   );
@@ -29,65 +94,93 @@ export default function CoverageInfoFooter() {
 
 const defaultStyles = StyleSheet.create({
   container: {
+    paddingTop: 12,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'pink',
   },
   optedInButton: {
     paddingLeft: 16,
     paddingRight: 16,
-    height: 38,
-    borderRadius: 19,
+    width: '100%',
+    height: 52,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#333333',
   },
   optedInButtonTitle: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#ffffff',
+    fontSize: 14,
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
+    textAlign: 'center',
+    fontWeight: 600,
   },
   noNeedButton: {
-    marginTop: 6,
+    marginTop: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   noNeedButtonTitle: {
-    color: '#4F4F4F',
+    color: '#808692',
     fontSize: 14,
-    fontWeight: 'regular',
+    fontFamily: Platform.select({
+      ios: 'Inter',
+    }),
+    textAlign: 'center',
+    fontWeight: 600,
   },
   horizontalStackView: {
-    marginTop: 24,
-    padding: 20,
+    width: '100%',
+    marginTop: 12,
+    padding: 14,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   privacyPolicyButton: {
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    color: '#5C5F62',
-    fontWeight: 'regular',
   },
   privacyPolicyButtonTitle: {
     color: '#5C5F62',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: 400,
+    lineHeight: 16,
+    textDecorationLine: 'underline',
   },
   termsButton: {
-    marginLeft: 20,
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    color: '#5C5F62',
-    fontWeight: 'regular',
   },
   termsButtonTitle: {
     color: '#5C5F62',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: 400,
+    lineHeight: 16,
+    textDecorationLine: 'underline',
+  },
+  poweredByContainer: {
+    marginTop: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  poweredByText: {
+    color: '#000000',
+    fontSize: 10,
+    fontWeight: 400,
+    lineHeight: 16,
+  },
+  lightPoweredByText: {
+    color: '#565656',
+  },
+  dartPoweredByText: {
+    color: 'white',
+  },
+  seelWordIcon: {
+    width: 32,
+    height: 16,
   },
 });
