@@ -91,7 +91,7 @@ export default interface IQuotesResponse {
 
   // Metadata
   created_ts: string;
-  status: QuoteStatus;
+  status: string;
 
   // Configuration
   type: string;
