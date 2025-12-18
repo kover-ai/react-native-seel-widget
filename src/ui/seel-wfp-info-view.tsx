@@ -18,7 +18,6 @@ export type Domain = '' | 'US' | 'EU';
 interface SeelWFPInfoViewProps {
   domain: Domain;
   widgetTitle: string;
-  coverageDetailsText: string[];
   termsUrl: string;
   privacyPolicyUrl: string;
   dictionary: any;
@@ -29,7 +28,6 @@ interface SeelWFPInfoViewProps {
 export default function SeelWFPInfoView({
   domain = '',
   widgetTitle = '',
-  coverageDetailsText = [],
   termsUrl = '',
   privacyPolicyUrl = '',
   dictionary = {},
@@ -114,23 +112,37 @@ export default function SeelWFPInfoView({
                   {dictionary[KeyValue.standard_coverage_intro] ?? ''}
                 </Text>
               ) : null}
-              {coverageDetailsText &&
-                coverageDetailsText.map((item, _) => {
-                  return (
-                    <View
-                      key={item}
-                      style={[{ marginTop: spacing }, defaultStyles.lineView]}
-                    >
-                      <Image
-                        source={require('../assets/images/icon_check_selected_black.png')}
-                        style={defaultStyles.checkIcon}
-                      />
-                      <Text style={[{ marginLeft: spacing }, defaultStyles.p]}>
-                        {item || ''}
-                      </Text>
-                    </View>
-                  );
-                })}
+              {(domain === 'US'
+                ? [
+                    dictionary[KeyValue.lost_in_transit] ?? '',
+                    dictionary[KeyValue.item_not_as_described] ?? '',
+                    dictionary[KeyValue.item_damaged] ?? '',
+                    dictionary[KeyValue.package_stolen] ?? '',
+                  ]
+                : [
+                    dictionary[KeyValue.standard_coverage_not_as_described] ??
+                      '',
+                    dictionary[KeyValue.standard_coverage_lost_damaged] ?? '',
+                    dictionary[KeyValue.standard_coverage_not_matching] ?? '',
+                    dictionary[KeyValue.standard_coverage_quality] ?? '',
+                    dictionary[KeyValue.standard_coverage_not_delivered] ?? '',
+                  ]
+              ).map((item, _) => {
+                return (
+                  <View
+                    key={item}
+                    style={[{ marginTop: spacing }, defaultStyles.lineView]}
+                  >
+                    <Image
+                      source={require('../assets/images/icon_check_selected_black.png')}
+                      style={defaultStyles.checkIcon}
+                    />
+                    <Text style={[{ marginLeft: spacing }, defaultStyles.p]}>
+                      {item || ''}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
             {domain === 'US' ? (
               <View
