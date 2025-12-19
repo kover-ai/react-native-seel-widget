@@ -204,10 +204,13 @@ export default function SeelWFPTitleView({
             <Text style={[_titleStyle]} adjustsFontSizeToFit>
               {title}
             </Text>
+            <Text style={_priceStyle} adjustsFontSizeToFit>
+              for
+            </Text>
             {/* eslint-disable-next-line no-bitwise */}
             {(loadingStatue & NetworkRequestStatueEnum.Loading) === 0 ? (
               <Text style={_priceStyle} adjustsFontSizeToFit>
-                for - {price}
+                {price}
               </Text>
             ) : (
               <View>
@@ -324,7 +327,7 @@ const defaultStyles = StyleSheet.create({
   },
   price: {
     marginLeft: 4,
-    fontSize: 10,
+    fontSize: 14,
     lineHeight: 20,
     fontWeight: 'regular',
   },
@@ -349,9 +352,9 @@ const defaultStyles = StyleSheet.create({
   },
   poweredByText: {
     color: '#565656',
-    fontSize: 7.5,
+    fontSize: 10,
     fontWeight: '600',
-    lineHeight: 10,
+    lineHeight: 16,
   },
   lightPoweredByText: {
     color: '#565656',
@@ -379,7 +382,7 @@ const defaultStyles = StyleSheet.create({
     lineHeight: 18,
   },
   seelWordIcon: {
-    width: 24,
-    height: 12,
+    width: 32,
+    height: 16,
   },
 });
