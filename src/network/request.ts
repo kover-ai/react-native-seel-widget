@@ -15,10 +15,6 @@ export interface GetRequestParams {
   [key: string]: any;
 }
 
-// const defaultXSeelApiKey: string = SeelWidgetSDK.shared.apiKey || '';
-// const defaultXSeelApiVersion: string = SeelWidgetSDK.shared.apiVersion || '';
-// const defaultRequestTimeout: number = SeelWidgetSDK.shared.requestTimeout;
-
 class Request {
   defaultHeaders(): RequestHeaders {
     return {
