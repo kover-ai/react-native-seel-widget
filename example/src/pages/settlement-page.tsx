@@ -186,7 +186,7 @@ export default function SettlementPage() {
   return (
     <SafeAreaView style={[defaultStyles.safeAreaContainer]}>
       <View>
-        {quoteEU.line_items.map((obj, idx) => {
+        {request.line_items.map((obj, idx) => {
           return (
             <CartCell
               key={obj.product_id}
