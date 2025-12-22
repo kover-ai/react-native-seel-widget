@@ -10,8 +10,8 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import CoverageInfoFooter from './coverage-info-footer';
-import KeyValue from '../constants/key_value';
+import { CoverageInfoFooter } from './coverage-info-footer';
+import { KeyValue } from '../constants/key_value';
 
 export type Domain = '' | 'US' | 'EU';
 
@@ -25,7 +25,7 @@ export interface SeelWFPInfoViewProps {
   onChangeOptedInValue: (value: boolean) => void;
 }
 
-export default function SeelWFPInfoView({
+export function SeelWFPInfoView({
   domain = '',
   widgetTitle = '',
   termsUrl = '',

@@ -18,7 +18,7 @@ import type { IEventInfo, IEvents, EventType } from './IEvents';
  * const request: EventsRequest = new EventsRequest(iRequest);
  * ```
  */
-export default class EventsRequest {
+export class EventsRequest {
   /**
    * Browser IP address
    */

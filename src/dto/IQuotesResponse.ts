@@ -81,7 +81,7 @@ export interface IQuotesResponseLineItem {
  * Quotes Response interface
  * Fields are ordered logically: identifiers, metadata, configuration, data, status
  */
-export default interface IQuotesResponse {
+export interface IQuotesResponse {
   // Identifiers
   quote_id: string;
   cart_id: string;

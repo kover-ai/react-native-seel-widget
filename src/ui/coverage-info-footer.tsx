@@ -8,7 +8,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import KeyValue from '../constants/key_value';
+import { KeyValue } from '../constants/key_value';
 
 export interface CoverageInfoFooterProps {
   termsUrl: string;
@@ -17,7 +17,7 @@ export interface CoverageInfoFooterProps {
   onChangeOptedInValue: (value: boolean) => void;
 }
 
-export default function CoverageInfoFooter({
+export function CoverageInfoFooter({
   termsUrl = '',
   privacyPolicyUrl = '',
   dictionary = {},

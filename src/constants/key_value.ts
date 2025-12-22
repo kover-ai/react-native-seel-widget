@@ -1,4 +1,4 @@
-const KeyValue = {
+export const KeyValue = {
   wfp_title: `{{title}} for {{price}}`,
   wfp_subtitle: `Extend your return window to 35 days`,
   wfp_description: `Get a full refund if the order doesn't arrive as described, including loss & damage in transit`,
@@ -44,5 +44,3 @@ const KeyValue = {
   get_refund_promptly: `Get your refund promptly`,
   worry_free_delivery: `Worry-Free Delivery®`,
 };
-
-export default KeyValue;

@@ -1,14 +1,17 @@
 export * from './core';
 export * from './dto';
 
-import CoverageInfoFooter, {
+import {
+  CoverageInfoFooter,
   type CoverageInfoFooterProps,
 } from './ui/coverage-info-footer';
-import SeelWFPInfoView, {
+import {
+  SeelWFPInfoView,
   type Domain,
   type SeelWFPInfoViewProps,
 } from './ui/seel-wfp-info-view';
-import SeelWFPTitleView, {
+import {
+  SeelWFPTitleView,
   type SeelWFPTitleViewProps,
 } from './ui/seel-wfp-title-view';
 import SeelWFPWidget, { type SeelWFPWidgetRef } from './ui/seel-wfp-widget';

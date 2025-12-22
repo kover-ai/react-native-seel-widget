@@ -8,7 +8,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import type { TextStyle, ViewStyle } from 'react-native';
-import KeyValue from '../constants/key_value';
+import { KeyValue } from '../constants/key_value';
 import GradientAnimationText, {
   type GradientAnimationTextRef,
 } from './gradient-animation-text';
@@ -80,7 +80,7 @@ export interface SeelWFPTitleViewProps {
   onChangeOptedInValue: (optedIn: boolean) => void;
 }
 
-export default function SeelWFPTitleView({
+export function SeelWFPTitleView({
   status,
   title,
   price,

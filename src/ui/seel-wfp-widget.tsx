@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import SeelWFPTitleView from './seel-wfp-title-view';
-import SeelWFPInfoView, { type Domain } from './seel-wfp-info-view';
+import { SeelWFPTitleView } from './seel-wfp-title-view';
+import { SeelWFPInfoView, type Domain } from './seel-wfp-info-view';
 import { createQuote } from '../utils/http_util';
 import { writeOptedIn } from '../utils/storage_util';
 import type { IQuotesRequest } from '../dto/IQuotesRequest';
-import KeyValue from '../constants/key_value';
-import type IQuotesResponse from '../dto/IQuotesResponse';
+import { KeyValue } from '../constants/key_value';
+import type { IQuotesResponse } from '../dto/IQuotesResponse';
 import { moneyFormat } from '../utils/format_util';
 import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
 
