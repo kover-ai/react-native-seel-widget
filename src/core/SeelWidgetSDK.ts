@@ -8,11 +8,13 @@ export enum SeelEnvironment {
 
 const defaultApiVersion: string = '2.6.0';
 const defaultSeelEnvironment: SeelEnvironment = SeelEnvironment.Production;
+const defaultRequestTimeout: number = 5000;
 
 interface SeelWidgetSDKProps {
   apiKey: string;
   apiVersion?: string;
   environment?: SeelEnvironment;
+  requestTimeout?: number;
 }
 
 /**
@@ -34,6 +36,7 @@ export class SeelWidgetSDK {
   private _apiKey: string = '';
   private _apiVersion: string = defaultApiVersion;
   private _environment: SeelEnvironment = defaultSeelEnvironment;
+  private _requestTimeout: number = defaultRequestTimeout;
 
   // MARK: - Private Constructor
   private constructor() {
@@ -51,6 +54,7 @@ export class SeelWidgetSDK {
     this._apiKey = props.apiKey;
     this._apiVersion = props.apiVersion ?? defaultApiVersion;
     this._environment = props.environment ?? defaultSeelEnvironment;
+    this._requestTimeout = props.requestTimeout ?? defaultRequestTimeout;
   }
 
   /**
@@ -72,6 +76,13 @@ export class SeelWidgetSDK {
    */
   public get environment(): SeelEnvironment {
     return this._environment;
+  }
+
+  /**
+   * Get current Request Timeout
+   */
+  public get requestTimeout(): number {
+    return this._requestTimeout;
   }
 
   /**
