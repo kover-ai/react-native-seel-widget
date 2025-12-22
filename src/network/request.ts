@@ -1,4 +1,4 @@
-import { SeelEnvironment, SeelWidgetSDK } from '../core/SeelWidgetSDK';
+import { SeelWidgetSDK } from '../core/SeelWidgetSDK';
 
 export interface RequestHeaders {
   'X-Seel-API-Key': string;
@@ -15,29 +15,21 @@ export interface GetRequestParams {
   [key: string]: any;
 }
 
-SeelWidgetSDK.shared.configure({
-  apiKey: 'yojct9zbwxok8961hr7e1s6i3fgmm1o1',
-  environment: SeelEnvironment.Development,
-});
-const defaultXSeelApiKey: string = SeelWidgetSDK.shared.apiKey || '';
-const defaultXSeelApiVersion: string = SeelWidgetSDK.shared.apiVersion || '';
+// const defaultXSeelApiKey: string = SeelWidgetSDK.shared.apiKey || '';
+// const defaultXSeelApiVersion: string = SeelWidgetSDK.shared.apiVersion || '';
+// const defaultRequestTimeout: number = SeelWidgetSDK.shared.requestTimeout;
 
 class Request {
-  private defaultHeaders: RequestHeaders = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'X-Seel-API-Key': defaultXSeelApiKey,
-    'X-Seel-API-Version': defaultXSeelApiVersion,
-  };
-
-  private defaultTimeout: number = 5000; // 5 seconds
-
-  /**
-   * Set default request headers
-   */
-  setDefaultHeaders(headers: RequestHeaders): void {
-    this.defaultHeaders = { ...this.defaultHeaders, ...headers };
+  defaultHeaders(): RequestHeaders {
+    return {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Seel-API-Key': SeelWidgetSDK.shared.apiKey,
+      'X-Seel-API-Version': SeelWidgetSDK.shared.apiVersion,
+    };
   }
+
+  private defaultTimeout: number = SeelWidgetSDK.shared.requestTimeout;
 
   /**
    * Set default timeout
@@ -94,7 +86,7 @@ class Request {
 
       // Merge request headers
       const headers = {
-        ...this.defaultHeaders,
+        ...this.defaultHeaders(),
         ...options?.headers,
       };
 
@@ -146,9 +138,11 @@ class Request {
     try {
       // Merge request headers
       const headers = {
-        ...this.defaultHeaders,
+        ...this.defaultHeaders(),
         ...options?.headers,
       };
+
+      console.log('headers:', headers);
 
       // Build request body
       let body: string | undefined;
