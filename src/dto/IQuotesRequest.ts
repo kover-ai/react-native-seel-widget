@@ -210,7 +210,7 @@ export interface IQuotesRequest {
   /**
    * The list of items included in the quote.
    */
-  line_items: IQuotesRequestLineItem[] | null;
+  line_items: IQuotesRequestLineItem[];
   customer: IQuotesRequestCustomer;
   shipping_address: IShippingAddress;
   /**
