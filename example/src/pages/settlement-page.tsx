@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import SeelWFPWidget from '../../../src/ui/seel-wfp-widget';
 import type { IQuotesRequest } from '../../../src/dto/IQuotesRequest';
 import type IQuotesResponse from '../../../src/dto/IQuotesResponse';
-import type { Domain } from '../../../src/ui/seel-wfp-info-view';
+import type { Domain } from '../../../src/ui';
 import CartCell from '../components/cart-cell';
 
 const quoteEU: IQuotesRequest = {
@@ -169,7 +165,6 @@ const quoteUS: IQuotesRequest = {
 
 export default function SettlementPage() {
   const [domain, setDomain] = useState<Domain>('EU');
-  // const request = domain === 'EU' ? quoteEU : quoteUS;
   const [request, setRequest] = useState(domain === 'EU' ? quoteEU : quoteUS);
   const initialRef: any = null;
   const seelWidgetRef = useRef<any>(initialRef);
@@ -184,7 +179,10 @@ export default function SettlementPage() {
   }, [request]);
 
   return (
-    <SafeAreaView style={[defaultStyles.safeAreaContainer]}>
+    <SafeAreaView
+      style={[defaultStyles.safeAreaContainer]}
+      edges={['right', 'bottom', 'left']}
+    >
       <View>
         {request.line_items.map((obj, idx) => {
           return (
