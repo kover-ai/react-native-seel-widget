@@ -187,7 +187,10 @@ export default function SeelWFPTitleView({
         <TouchableOpacity
           hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
           onPress={() => {
-            onChangeOptedInValue(!optedIn);
+            // eslint-disable-next-line no-bitwise
+            if ((loadingStatue & NetworkRequestStatueEnum.Success) !== 0) {
+              onChangeOptedInValue(!optedIn);
+            }
           }}
         >
           <Image
