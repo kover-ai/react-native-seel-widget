@@ -1,6 +1,6 @@
 {
   "name": "react-native-seel-widget",
-  "version": "0.1.0",
+  "version": "0.1.11",
   "description": "React Native Seel Widget",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -34,7 +34,6 @@
   "scripts": {
     "example": "yarn workspace react-native-seel-widget-example",
     "clean": "del-cli lib",
-    "prepare": "bob build",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
