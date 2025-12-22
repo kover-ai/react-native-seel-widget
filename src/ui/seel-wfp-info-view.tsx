@@ -15,7 +15,7 @@ import KeyValue from '../constants/key_value';
 
 export type Domain = '' | 'US' | 'EU';
 
-interface SeelWFPInfoViewProps {
+export interface SeelWFPInfoViewProps {
   domain: Domain;
   widgetTitle: string;
   termsUrl: string;
