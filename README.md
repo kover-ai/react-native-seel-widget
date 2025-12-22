@@ -36,10 +36,9 @@ SeelWidgetSDK.shared.configure({
 });
 ```
 
-```
+```tsx
 // Step 2
-import type { IQuotesRequest, IQuotesResponse } from 'react-native-seel-widget';
-import { SeelWFPWidget } from 'react-native-seel-widget';
+import { SeelWFPWidget, IQuotesRequest, IQuotesResponse } from 'react-native-seel-widget';
 
 const quoteEU: IQuotesRequest = {};
 const quoteUS: IQuotesRequest = {};
