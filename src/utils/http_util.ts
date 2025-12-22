@@ -17,14 +17,12 @@ export enum NetworkErrorEnum {
   Unknown,
 }
 
-const defaultBaseURL: string = SeelWidgetSDK.shared.baseURL;
-
 export const createQuote = (body: IQuotesRequest) => {
-  const url = defaultBaseURL + '/v1/ecommerce/quotes';
+  const url = SeelWidgetSDK.shared.baseURL + '/v1/ecommerce/quotes';
   return post<IQuotesResponse>(url, JSON.stringify(body), {});
 };
 
 export const createEvent = (body: IEvents) => {
-  const url = defaultBaseURL + '/v1/ecommerce/events';
+  const url = SeelWidgetSDK.shared.baseURL + '/v1/ecommerce/events';
   return post<IQuotesResponse>(url, JSON.stringify(body), {});
 };
