@@ -1,35 +1,122 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import type { IQuotesRequestLineItem } from '../../../src/dto/IQuotesRequest';
 
 interface CartCellProps {
-  productName: string;
-  imageUrl?: string;
-  quantity?: number;
+  item: IQuotesRequestLineItem;
+  index: number;
+  onChangeQuantity?: ({
+    item,
+    index,
+    quantity,
+  }: {
+    item?: IQuotesRequestLineItem;
+    index: number;
+    quantity: number;
+  }) => void;
+  onPress?: (item: IQuotesRequestLineItem) => void;
 }
 
 export default function CartCell({
-  productName = '',
-  imageUrl = '',
-  quantity = 0,
+  item,
+  index,
+  onChangeQuantity,
+  onPress,
 }: CartCellProps) {
+  const { product_title, price, quantity = 0, image_urls = [] } = item;
+  const imageUrl = image_urls[0];
+
+  const handleDecrease = () => {
+    if (quantity > 1) {
+      onChangeQuantity?.({ item, index, quantity: quantity - 1 });
+    }
+  };
+
+  const handleIncrease = () => {
+    onChangeQuantity?.({ item, index, quantity: quantity + 1 });
+  };
+
+  const handlePress = () => {
+    onPress?.(item);
+  };
+
+  const formatPrice = (priceStr?: string) => {
+    if (!priceStr) return '';
+    const numPrice = parseFloat(priceStr);
+    if (isNaN(numPrice)) return priceStr;
+    return `$${numPrice.toFixed(2)}`;
+  };
+
+  const calculateItemTotal = () => {
+    if (!price) return '';
+    const numPrice = parseFloat(`${price}`);
+    if (isNaN(numPrice)) return '';
+    return `$${(numPrice * quantity).toFixed(2)}`;
+  };
+
   return (
-    <TouchableOpacity style={[defaultStyles.container]}>
-      <View style={[defaultStyles.rowContainer]}>
-        <Image source={{ uri: imageUrl }} style={[defaultStyles.image]} />
-        <View style={[defaultStyles.columnContainer]}>
-          <Text>{productName}</Text>
-          <View style={[defaultStyles.rowContainer]}>
-            <View style={[{ flex: 1 }, defaultStyles.rowContainer]} />
-            <View style={[defaultStyles.rowContainer]}>
-              <TouchableOpacity style={[defaultStyles.decreaseButton]}>
-                <Text style={[defaultStyles.decreaseText]}>-</Text>
+    <TouchableOpacity
+      style={defaultStyles.container}
+      onPress={handlePress}
+      activeOpacity={0.7}
+    >
+      <View style={defaultStyles.rowContainer}>
+        <View style={defaultStyles.imageContainer}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={defaultStyles.image} />
+          ) : (
+            <View style={defaultStyles.placeholderImage}>
+              <Text style={defaultStyles.placeholderText}>No Image</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={defaultStyles.contentContainer}>
+          <View style={defaultStyles.infoContainer}>
+            <Text style={defaultStyles.product_title} numberOfLines={2}>
+              {product_title || 'Unnamed Product'}
+            </Text>
+            {price && (
+              <Text style={defaultStyles.price}>{formatPrice(`${price}`)}</Text>
+            )}
+          </View>
+
+          <View style={defaultStyles.actionsContainer}>
+            <View style={defaultStyles.quantityContainer}>
+              <TouchableOpacity
+                style={[
+                  defaultStyles.quantityButton,
+                  quantity <= 1 && defaultStyles.quantityButtonDisabled,
+                ]}
+                onPress={handleDecrease}
+                disabled={quantity <= 1}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    defaultStyles.quantityButtonText,
+                    quantity <= 1 && defaultStyles.quantityButtonTextDisabled,
+                  ]}
+                >
+                  -
+                </Text>
               </TouchableOpacity>
-              <Text>{quantity}</Text>
-              <TouchableOpacity style={[defaultStyles.increaseButton]}>
-                <Text style={[defaultStyles.increaseText]}>-</Text>
+              <Text style={defaultStyles.quantityText}>{quantity}</Text>
+              <TouchableOpacity
+                style={defaultStyles.quantityButton}
+                onPress={handleIncrease}
+                activeOpacity={0.7}
+              >
+                <Text style={defaultStyles.quantityButtonText}>+</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        {price && (
+          <View style={defaultStyles.totalContainer}>
+            <Text style={defaultStyles.totalText}>{calculateItemTotal()}</Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -37,41 +124,121 @@ export default function CartCell({
 
 const defaultStyles = StyleSheet.create({
   container: {
-    flex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    marginBottom: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   rowContainer: {
     flexDirection: 'row',
-  },
-  columnContainer: {
-    flexDirection: 'column',
-  },
-  centerContainer: {
-    justifyContent: 'center',
     alignItems: 'center',
+  },
+  imageContainer: {
+    marginRight: 12,
   },
   image: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#d3d3d3',
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
   },
-  decreaseButton: {
+  placeholderImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  decreaseText: {
-    color: '#666666',
-    fontSize: 14,
-    lineHeight: 20,
-    height: 20,
+  placeholderText: {
+    fontSize: 10,
+    color: '#999999',
+    textAlign: 'center',
   },
-  increaseButton: {
-    justifyContent: 'center',
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  infoContainer: {
+    marginBottom: 8,
+  },
+  product_title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 14,
+    color: '#666666',
+    fontWeight: '500',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  increaseText: {
-    color: '#666666',
-    fontSize: 14,
-    lineHeight: 20,
-    height: 20,
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 6,
+    backgroundColor: '#f9f9f9',
+  },
+  quantityButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+  },
+  quantityButtonDisabled: {
+    backgroundColor: '#f5f5f5',
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+  },
+  quantityButtonTextDisabled: {
+    color: '#cccccc',
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    paddingHorizontal: 16,
+    minWidth: 40,
+    textAlign: 'center',
+  },
+  removeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#ff4444',
+    borderRadius: 6,
+  },
+  removeButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  totalContainer: {
+    marginLeft: 12,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  totalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333333',
   },
 });
