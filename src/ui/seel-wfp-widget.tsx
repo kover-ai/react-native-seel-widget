@@ -68,12 +68,14 @@ const SeelWFPWidget = (
     try {
       setLoadingStatus(NetworkRequestStatueEnum.Loading);
       const response = await createQuote(quote);
+      console.log('response quote:', quote);
       setLoadingStatus(NetworkRequestStatueEnum.Success);
       setQuotesResponse(response);
-      setStatus(response.status ?? '');
-      // setStatus('rejected');
+      let _status = response.status ?? '';
+      // _status = 'rejected';
+      setStatus(_status);
 
-      setOptedIn(response.is_default_on);
+      setOptedIn(_status === 'accepted' && response.is_default_on);
 
       if (response.status === 'accepted') {
         const extraInfo = response.extra_info ?? {};
@@ -202,7 +204,7 @@ const SeelWFPWidget = (
             transparent={status === 'accepted' ? false : true}
             visible={visible && modalVisible}
             onRequestClose={() => {
-              setModalVisible(!modalVisible);
+              setModalVisible(false);
             }}
           >
             {status === 'accepted' ? (
