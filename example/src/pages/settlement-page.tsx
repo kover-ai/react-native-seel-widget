@@ -12,6 +12,7 @@ import SeelWFPWidget from '../../../src/ui/seel-wfp-widget';
 import type { IQuotesRequest } from '../../../src/dto/IQuotesRequest';
 import type IQuotesResponse from '../../../src/dto/IQuotesResponse';
 import type { Domain } from '../../../src/ui/seel-wfp-info-view';
+import CartCell from '../components/cart-cell';
 
 const quoteEU: IQuotesRequest = {
   session_id: '3b87ea2a6cecdb94bae186263feb9e7f',
@@ -167,21 +168,41 @@ const quoteUS: IQuotesRequest = {
 };
 
 export default function SettlementPage() {
-  const [domain, setDomain] = useState<Domain>('');
+  const [domain, setDomain] = useState<Domain>('EU');
+  // const request = domain === 'EU' ? quoteEU : quoteUS;
+  const [request, setRequest] = useState(domain === 'EU' ? quoteEU : quoteUS);
   const initialRef: any = null;
   const seelWidgetRef = useRef<any>(initialRef);
   useEffect(() => {
+    console.warn('useEffect request:\n', request);
     const setup = () => {
       if (seelWidgetRef.current) {
-        const quote = domain === 'EU' ? quoteEU : quoteUS;
-        seelWidgetRef.current.setup(quote);
+        seelWidgetRef.current.setup(request);
       }
     };
     setup();
-  }, [domain]);
+  }, [request]);
 
   return (
     <SafeAreaView style={[defaultStyles.safeAreaContainer]}>
+      <View>
+        {quoteEU.line_items.map((obj, idx) => {
+          return (
+            <CartCell
+              key={obj.product_id}
+              item={obj}
+              index={idx}
+              onChangeQuantity={({ item, index, quantity }) => {
+                let line_items = request.line_items || [];
+                line_items[index] = Object.assign({}, item, {
+                  quantity,
+                });
+                setRequest(Object.assign({}, request, { line_items }));
+              }}
+            />
+          );
+        })}
+      </View>
       <View style={[defaultStyles.box]}>
         <SeelWFPWidget
           ref={seelWidgetRef}
@@ -203,6 +224,7 @@ export default function SettlementPage() {
           style={defaultStyles.button}
           onPress={() => {
             setDomain('EU');
+            setRequest(quoteEU);
           }}
         >
           <Text>Setup EU</Text>
@@ -211,6 +233,7 @@ export default function SettlementPage() {
           style={defaultStyles.button}
           onPress={() => {
             setDomain('US');
+            setRequest(quoteUS);
           }}
         >
           <Text>Setup US</Text>
