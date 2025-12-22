@@ -4,9 +4,9 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import SeelWFPWidget from '../../../src/ui/seel-wfp-widget';
+import { SeelWFPWidget } from '../../../src';
 import type { IQuotesRequest } from '../../../src/dto/IQuotesRequest';
-import type IQuotesResponse from '../../../src/dto/IQuotesResponse';
+import type { IQuotesResponse } from '../../../src/dto/IQuotesResponse';
 import type { Domain } from '../../../src/ui';
 import CartCell from '../components/cart-cell';
 
