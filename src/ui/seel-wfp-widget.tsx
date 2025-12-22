@@ -125,9 +125,6 @@ const SeelWFPWidget = (
     }
   }
 
-  // useEffect(() => {
-  //   fetchNetworkData();
-  // }, [optedIn]);
   useEffect(() => {
     onChangeValue({ optedIn, quotesResponse });
   }, [onChangeValue, optedIn, quotesResponse]);
