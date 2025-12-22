@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import KeyValue from '../constants/key_value';
 
-interface CoverageInfoFooterProps {
+export interface CoverageInfoFooterProps {
   termsUrl: string;
   privacyPolicyUrl: string;
   dictionary: any;
