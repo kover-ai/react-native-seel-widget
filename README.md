@@ -1,37 +1,79 @@
 # react-native-seel-widget
 
-React Native Seel Widget
+SeelWidget for React Native (iOS, Android, and Web)
 
-## Installation
+## Installing
 
+### With expo
 
-```sh
-npm install react-native-seel-widget
+```
+npx expo install react-native-seel-widget
 ```
 
+### With react-native-cli
+
+1. Install library
+
+  ```
+  yarn add react-native-seel-widget
+  ```
+
+  *Note: We're using `yarn` to install deps. Feel free to change commands to use `npm` 11+ and `npx` if you like*
+
+2. Link native code
+
+  ```
+  cd ios && pod install
+  ```
 
 ## Usage
 
-
-```js
-import { multiply } from 'react-native-seel-widget';
-
-// ...
-
-const result = await multiply(3, 7);
+```tsx
+// Step 1
+SeelWidgetSDK.shared.configure({
+  apiKey: '5ctiodrhqyfkcjqhli4wwnwi6cakrs5r',
+  environment: SeelEnvironment.Development,
+});
 ```
 
+```
+// Step 2
+import type { IQuotesRequest, IQuotesResponse } from 'react-native-seel-widget';
+import { SeelWFPWidget } from 'react-native-seel-widget';
 
-## Contributing
+const quoteEU: IQuotesRequest = {};
+const quoteUS: IQuotesRequest = {};
+export default function YourPage() {
+  const [domain, setDomain] = useState<Domain>('');
+  const initialRef: any = null;
+	const seelWidgetRef = useRef<any>(initialRef);
+  useEffect(() => {
+    const setup = () => {
+      if (seelWidgetRef.current) {
+        const quote = domain === 'EU' ? quoteEU : quoteUS;
+        seelWidgetRef.current.setup(quote);
+      }
+    };
+    setup();
+  });
 
-- [Development workflow](CONTRIBUTING.md#development-workflow)
-- [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
-- [Code of conduct](CODE_OF_CONDUCT.md)
+  return (
+    <View>
+      <SeelWFPWidget
+        ref={seelWidgetRef}
+        domain={domain}
+        onChangeValue={function ({
+          optedIn,
+          quotesResponse,
+        }: {
+          optedIn: boolean;
+          quotesResponse?: IQuotesResponse;
+        }): void {
+          console.log(optedIn, quotesResponse);
+        }}
+      />
+    </View>
+  );
+}
 
-## License
-
-MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+```
