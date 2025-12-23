@@ -43,18 +43,19 @@ import { SeelWFPWidget, IQuotesRequest, IQuotesResponse } from 'react-native-see
 const quoteEU: IQuotesRequest = {};
 const quoteUS: IQuotesRequest = {};
 export default function YourPage() {
-  const [domain, setDomain] = useState<Domain>('');
+  const [domain, setDomain] = useState<Domain>('EU');
+  const [request, setRequest] = useState(domain === 'EU' ? quoteEU : quoteUS);
   const initialRef: any = null;
-	const seelWidgetRef = useRef<any>(initialRef);
+  const seelWidgetRef = useRef<any>(initialRef);
   useEffect(() => {
+    console.warn('useEffect request:\n', request);
     const setup = () => {
       if (seelWidgetRef.current) {
-        const quote = domain === 'EU' ? quoteEU : quoteUS;
-        seelWidgetRef.current.setup(quote);
+        seelWidgetRef.current.setup(request);
       }
     };
     setup();
-  });
+  }, [request]);
 
   return (
     <View>
