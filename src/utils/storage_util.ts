@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SeelWidgetSDK } from '../core';
 
 const StorageValue = {
   True: '1',
@@ -21,6 +22,9 @@ function logGetError(key: string, error: unknown) {
 export const writeOptedIn = async (value: boolean): Promise<void> => {
   const key = AsyncStorageKey.OptedIn;
   try {
+    await writeOptOutExpiredTime(
+      new Date().getTime() + SeelWidgetSDK.shared.optOutExpiredTime
+    );
     await AsyncStorage.setItem(
       key,
       value ? StorageValue.True : StorageValue.False
@@ -31,27 +35,26 @@ export const writeOptedIn = async (value: boolean): Promise<void> => {
   }
 };
 
-export const readOptedIn = async (): Promise<boolean> => {
+export const readOptedIn = async (): Promise<boolean | null> => {
   const key = AsyncStorageKey.OptedIn;
   try {
     const value = await AsyncStorage.getItem(key);
+    console.warn('readOptedIn value:\n\n', value);
     return value !== null && value !== '' && value !== StorageValue.False;
   } catch (error) {
     logGetError(key, error);
-    return false;
+    return null;
   }
 };
 
-export const writeOptOutExpiredTime = (value: number): void => {
-  (async (): Promise<void> => {
-    const key = AsyncStorageKey.OptOutExpiredTime;
-    try {
-      await AsyncStorage.setItem(key, value.toString());
-    } catch (error) {
-      logSetError(key, error);
-      throw error;
-    }
-  })();
+export const writeOptOutExpiredTime = async (value: number): Promise<void> => {
+  const key = AsyncStorageKey.OptOutExpiredTime;
+  try {
+    await AsyncStorage.setItem(key, value.toString());
+  } catch (error) {
+    logSetError(key, error);
+    throw error;
+  }
 };
 
 export const readOptOutExpiredTime = async () => {
