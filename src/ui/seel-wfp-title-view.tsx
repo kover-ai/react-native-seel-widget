@@ -14,6 +14,7 @@ import GradientAnimationText, {
 } from './gradient-animation-text';
 import { useRef } from 'react';
 import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
+import { ResponseStatusEnum } from '../constants';
 
 export interface SeelWFPTitleViewProps {
   status: string;
@@ -207,14 +208,19 @@ export function SeelWFPTitleView({
             <Text style={[_titleStyle]} adjustsFontSizeToFit>
               {title}
             </Text>
-            <Text style={_priceStyle} adjustsFontSizeToFit>
-              for
-            </Text>
+            {status === ResponseStatusEnum.Accepted ? (
+              <Text style={_priceStyle} adjustsFontSizeToFit>
+                for
+              </Text>
+            ) : null}
+
             {/* eslint-disable-next-line no-bitwise */}
             {(loadingStatue & NetworkRequestStatueEnum.Loading) === 0 ? (
-              <Text style={_priceStyle} adjustsFontSizeToFit>
-                {price}
-              </Text>
+              status === ResponseStatusEnum.Accepted ? (
+                <Text style={_priceStyle} adjustsFontSizeToFit>
+                  {price}
+                </Text>
+              ) : null
             ) : (
               <View>
                 <GradientAnimationText
@@ -224,18 +230,19 @@ export function SeelWFPTitleView({
                 />
               </View>
             )}
-            {loadingStatue === NetworkRequestStatueEnum.Success
+            {loadingStatue === NetworkRequestStatueEnum.Success &&
+            status === ResponseStatusEnum.Accepted
               ? renderInfoButton()
               : null}
           </View>
         </View>
       </View>
       <View style={[defaultStyles.columnContainer]}>
-        {status === 'accepted' &&
+        {status === ResponseStatusEnum.Accepted &&
           renderTickView(dictionary[KeyValue.wfp_subtitle] ?? '')}
-        {status === 'accepted' &&
+        {status === ResponseStatusEnum.Accepted &&
           renderTickView(dictionary[KeyValue.wfp_description] ?? '')}
-        {status === 'rejected' && (
+        {status === ResponseStatusEnum.Rejected && (
           <View
             style={[
               defaultStyles.rowContainer,
