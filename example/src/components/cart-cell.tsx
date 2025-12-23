@@ -1,4 +1,12 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import type { IQuotesRequestLineItem } from '../../../src/dto/IQuotesRequest';
 
 interface CartCellProps {
@@ -24,20 +32,68 @@ export default function CartCell({
 }: CartCellProps) {
   const { product_title, price, quantity = 0, image_urls = [] } = item;
   const imageUrl = image_urls[0];
+  const [inputValue, setInputValue] = useState<string>(quantity.toString());
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleDecrease = () => {
     if (quantity > 1) {
-      onChangeQuantity?.({ item, index, quantity: quantity - 1 });
+      const newQuantity = quantity - 1;
+      onChangeQuantity?.({ item, index, quantity: newQuantity });
+      setInputValue(newQuantity.toString());
     }
   };
 
   const handleIncrease = () => {
-    onChangeQuantity?.({ item, index, quantity: quantity + 1 });
+    const newQuantity = quantity + 1;
+    onChangeQuantity?.({ item, index, quantity: newQuantity });
+    setInputValue(newQuantity.toString());
   };
 
   const handlePress = () => {
     onPress?.(item);
   };
+
+  const handleQuantityInputChange = (text: string) => {
+    // Allow empty string for better UX while typing
+    if (text === '') {
+      setInputValue('');
+      return;
+    }
+    // Only allow numbers
+    const numericValue = text.replace(/[^0-9]/g, '');
+    if (numericValue !== '') {
+      setInputValue(numericValue);
+    }
+  };
+
+  const handleQuantityInputBlur = () => {
+    setIsEditing(false);
+    const numValue = parseInt(inputValue, 10);
+
+    // Validate and set quantity
+    if (isNaN(numValue) || numValue < 1) {
+      // Reset to current quantity if invalid
+      setInputValue(quantity.toString());
+    } else {
+      // Update quantity if valid and different
+      if (numValue !== quantity) {
+        onChangeQuantity?.({ item, index, quantity: numValue });
+      } else {
+        setInputValue(quantity.toString());
+      }
+    }
+  };
+
+  const handleQuantityInputFocus = () => {
+    setIsEditing(true);
+  };
+
+  // Update input value when quantity prop changes externally (when not editing)
+  useEffect(() => {
+    if (!isEditing) {
+      setInputValue(quantity.toString());
+    }
+  }, [quantity, isEditing]);
 
   const formatPrice = (priceStr?: string) => {
     if (!priceStr) return '';
@@ -100,7 +156,16 @@ export default function CartCell({
                   -
                 </Text>
               </TouchableOpacity>
-              <Text style={defaultStyles.quantityText}>{quantity}</Text>
+              <TextInput
+                style={defaultStyles.quantityInput}
+                value={inputValue}
+                onChangeText={handleQuantityInputChange}
+                onBlur={handleQuantityInputBlur}
+                onFocus={handleQuantityInputFocus}
+                keyboardType="number-pad"
+                selectTextOnFocus
+                maxLength={4}
+              />
               <TouchableOpacity
                 style={defaultStyles.quantityButton}
                 onPress={handleIncrease}
@@ -219,6 +284,15 @@ const defaultStyles = StyleSheet.create({
     paddingHorizontal: 16,
     minWidth: 40,
     textAlign: 'center',
+  },
+  quantityInput: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    paddingHorizontal: 8,
+    minWidth: 40,
+    textAlign: 'center',
+    backgroundColor: '#ffffff',
   },
   removeButton: {
     paddingHorizontal: 12,
