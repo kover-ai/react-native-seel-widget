@@ -9,12 +9,14 @@ export enum SeelEnvironment {
 const defaultApiVersion: string = '2.6.0';
 const defaultSeelEnvironment: SeelEnvironment = SeelEnvironment.Production;
 const defaultRequestTimeout: number = 5000;
+const defaultOptOutExpiredTime: number = 31536000000; // 31536000000 = 365 * 24 * 60 * 60 * 1000;
 
 interface SeelWidgetSDKProps {
   apiKey: string;
   apiVersion?: string;
   environment?: SeelEnvironment;
   requestTimeout?: number;
+  optOutExpiredTime?: number;
 }
 
 /**
@@ -37,6 +39,7 @@ export class SeelWidgetSDK {
   private _apiVersion: string = defaultApiVersion;
   private _environment: SeelEnvironment = defaultSeelEnvironment;
   private _requestTimeout: number = defaultRequestTimeout;
+  private _optOutExpiredTime: number = defaultOptOutExpiredTime;
 
   // MARK: - Private Constructor
   private constructor() {
@@ -55,6 +58,8 @@ export class SeelWidgetSDK {
     this._apiVersion = props.apiVersion ?? defaultApiVersion;
     this._environment = props.environment ?? defaultSeelEnvironment;
     this._requestTimeout = props.requestTimeout ?? defaultRequestTimeout;
+    this._optOutExpiredTime =
+      props.optOutExpiredTime ?? defaultOptOutExpiredTime;
   }
 
   /**
@@ -83,6 +88,13 @@ export class SeelWidgetSDK {
    */
   public get requestTimeout(): number {
     return this._requestTimeout;
+  }
+
+  /**
+   * Get current Opt-Out Expired Time
+   */
+  public get optOutExpiredTime(): number {
+    return this._optOutExpiredTime;
   }
 
   /**
