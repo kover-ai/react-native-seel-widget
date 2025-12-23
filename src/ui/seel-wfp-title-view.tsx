@@ -224,7 +224,9 @@ export function SeelWFPTitleView({
                 />
               </View>
             )}
-            {renderInfoButton()}
+            {loadingStatue === NetworkRequestStatueEnum.Success
+              ? renderInfoButton()
+              : null}
           </View>
         </View>
       </View>
