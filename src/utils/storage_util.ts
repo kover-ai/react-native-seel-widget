@@ -7,6 +7,7 @@ const StorageValue = {
 
 export const AsyncStorageKey = {
   OptedIn: 'SeelWFPWidget.OptedIn',
+  OptOutExpiredTime: 'SeelWFPWidget.OptOutExpiredTime',
 };
 
 function logSetError(key: string, error: unknown) {
@@ -38,5 +39,30 @@ export const readOptedIn = async (): Promise<boolean> => {
   } catch (error) {
     logGetError(key, error);
     return false;
+  }
+};
+
+export const writeOptOutExpiredTime = (value: number): void => {
+  (async (): Promise<void> => {
+    const key = AsyncStorageKey.OptOutExpiredTime;
+    try {
+      await AsyncStorage.setItem(key, value.toString());
+    } catch (error) {
+      logSetError(key, error);
+      throw error;
+    }
+  })();
+};
+
+export const readOptOutExpiredTime = async () => {
+  const key = AsyncStorageKey.OptOutExpiredTime;
+  try {
+    const value = await AsyncStorage.getItem(key);
+    return value !== null && value !== '' && Number.isNaN(value) === false
+      ? Number(value)
+      : 0;
+  } catch (error) {
+    logGetError(key, error);
+    return 0;
   }
 };
