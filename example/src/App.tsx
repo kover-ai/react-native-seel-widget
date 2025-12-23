@@ -1,9 +1,10 @@
 import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import CartPage from './pages/cart-page';
 
+import CartPage from './pages/cart-page';
 import SettlementPage from './pages/settlement-page';
-import { SeelEnvironment, SeelWidgetSDK } from '../../src/core/SeelWidgetSDK';
+
+import { SeelEnvironment, SeelWidgetSDK } from '../../src';
 
 SeelWidgetSDK.shared.configure({
   apiKey: '5ctiodrhqyfkcjqhli4wwnwi6cakrs5r',
