@@ -9,13 +9,17 @@ import {
 } from 'react-native';
 import { SeelWFPTitleView } from './seel-wfp-title-view';
 import { SeelWFPInfoView, type Domain } from './seel-wfp-info-view';
-import { createQuote } from '../utils/http_util';
-import { writeOptedIn } from '../utils/storage_util';
+import {
+  KeyValue,
+  NetworkRequestStatueEnum,
+  ResponseStatusEnum,
+} from '../constants';
+
 import type { IQuotesRequest } from '../dto/IQuotesRequest';
-import { KeyValue } from '../constants/key_value';
 import type { IQuotesResponse } from '../dto/IQuotesResponse';
+import { createQuote } from '../utils/http_util';
 import { moneyFormat } from '../utils/format_util';
-import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
+import { writeOptedIn } from '../utils/storage_util';
 
 export interface SeelWFPWidgetRef {
   setup(quote: IQuotesRequest): void;
@@ -23,6 +27,7 @@ export interface SeelWFPWidgetRef {
 
 interface SeelWFPWidgetProps {
   domain: Domain;
+  defaultOptedIn: boolean;
   onChangeValue: ({
     optedIn,
     quotesResponse,
@@ -35,6 +40,7 @@ interface SeelWFPWidgetProps {
 const SeelWFPWidget = (
   {
     domain = '',
+    defaultOptedIn = false,
     onChangeValue = ({ optedIn, quotesResponse }) => {
       console.log(optedIn, quotesResponse);
     },
@@ -44,7 +50,7 @@ const SeelWFPWidget = (
   const [quotesResponse, setQuotesResponse] = useState<IQuotesResponse>();
   const [termsUrl, setTermsUrl] = useState('');
   const [privacyPolicyUrl, setPrivacyPolicyUrl] = useState('');
-  const [optedIn, setOptedIn] = useState(false);
+  const [optedIn, setOptedIn] = useState(defaultOptedIn);
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [widgetTitle, setWidgetTitle] = useState('');
@@ -75,9 +81,11 @@ const SeelWFPWidget = (
       // _status = 'rejected';
       setStatus(_status);
 
-      setOptedIn(_status === 'accepted' && response.is_default_on);
+      setOptedIn(
+        _status === ResponseStatusEnum.Accepted && response.is_default_on
+      );
 
-      if (response.status === 'accepted') {
+      if (response.status === ResponseStatusEnum.Accepted) {
         const extraInfo = response.extra_info ?? {};
         const currency: string = response.currency;
         const _title: string = extraInfo?.widget_title ?? '';
@@ -115,7 +123,7 @@ const SeelWFPWidget = (
         setVisible(true);
       } else {
         setModalVisible(false);
-        setVisible(false);
+        // setVisible(false);
       }
     } catch (error) {
       console.warn(error);
@@ -129,6 +137,30 @@ const SeelWFPWidget = (
     onChangeValue({ optedIn, quotesResponse });
   }, [onChangeValue, optedIn, quotesResponse]);
 
+  const renderEligibleModalView = () => {
+    return (
+      <SeelWFPInfoView
+        widgetTitle={widgetTitle}
+        dictionary={dictionary}
+        domain={domain}
+        termsUrl={termsUrl}
+        privacyPolicyUrl={privacyPolicyUrl}
+        onClickClose={() => {
+          setModalVisible(false);
+        }}
+        onChangeOptedInValue={(value: boolean) => {
+          setModalVisible(false);
+          if (status === ResponseStatusEnum.Accepted) {
+            setOptedIn(value);
+            onChangeValue({ optedIn, quotesResponse });
+          } else {
+            setOptedIn(false);
+            onChangeValue({ optedIn, quotesResponse });
+          }
+        }}
+      />
+    );
+  };
   const renderIneligibleModalView = () => {
     const margin = 12;
     return (
@@ -172,8 +204,16 @@ const SeelWFPWidget = (
     );
   };
 
+  const ineligibleStyle = {
+    opacity: 0.6,
+  };
   return (
-    <View style={[defaultStyles.container]}>
+    <View
+      style={[
+        defaultStyles.container,
+        status === ResponseStatusEnum.Accepted ? null : ineligibleStyle,
+      ]}
+    >
       {visible ? (
         <View>
           <SeelWFPTitleView
@@ -187,7 +227,7 @@ const SeelWFPWidget = (
               setModalVisible(true);
             }}
             onChangeOptedInValue={async (value: boolean) => {
-              if (status === 'accepted') {
+              if (status === ResponseStatusEnum.Accepted) {
                 writeOptedIn(value);
                 setOptedIn(value);
                 onChangeValue({ optedIn, quotesResponse });
@@ -197,36 +237,21 @@ const SeelWFPWidget = (
             }}
           />
           <Modal
-            animationType={status === 'accepted' ? 'slide' : 'fade'}
-            transparent={status === 'accepted' ? false : true}
+            animationType={
+              status === ResponseStatusEnum.Accepted ? 'slide' : 'fade'
+            }
+            transparent={status === ResponseStatusEnum.Accepted ? false : true}
             visible={visible && modalVisible}
             onRequestClose={() => {
               setModalVisible(false);
             }}
           >
-            {status === 'accepted' ? (
-              <SeelWFPInfoView
-                widgetTitle={widgetTitle}
-                dictionary={dictionary}
-                domain={domain}
-                termsUrl={termsUrl}
-                privacyPolicyUrl={privacyPolicyUrl}
-                onClickClose={() => {
-                  setModalVisible(false);
-                }}
-                onChangeOptedInValue={(value: boolean) => {
-                  setModalVisible(false);
-                  if (status === 'accepted') {
-                    setOptedIn(value);
-                    onChangeValue({ optedIn, quotesResponse });
-                  } else {
-                    setOptedIn(false);
-                    onChangeValue({ optedIn, quotesResponse });
-                  }
-                }}
-              />
-            ) : null}
-            {status === 'rejected' ? renderIneligibleModalView() : null}
+            {status === ResponseStatusEnum.Accepted
+              ? renderEligibleModalView()
+              : null}
+            {status === ResponseStatusEnum.Rejected
+              ? renderIneligibleModalView()
+              : null}
           </Modal>
         </View>
       ) : (
