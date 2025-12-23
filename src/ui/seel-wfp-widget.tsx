@@ -19,7 +19,11 @@ import type { IQuotesRequest } from '../dto/IQuotesRequest';
 import type { IQuotesResponse } from '../dto/IQuotesResponse';
 import { createQuote } from '../utils/http_util';
 import { moneyFormat } from '../utils/format_util';
-import { writeOptedIn } from '../utils/storage_util';
+import {
+  readOptedIn,
+  readOptOutExpiredTime,
+  writeOptedIn,
+} from '../utils/storage_util';
 
 export interface SeelWFPWidgetRef {
   setup(quote: IQuotesRequest): void;
@@ -64,11 +68,17 @@ const SeelWFPWidget = (
   useImperativeHandle(
     ref,
     () => ({
-      setup(quote: IQuotesRequest) {
-        fetchNetworkData(quote);
+      async setup(quote: IQuotesRequest) {
+        const optOutExpiredTime = await readOptOutExpiredTime();
+        const is_default_on =
+          new Date().getTime() < optOutExpiredTime
+            ? (await readOptedIn()) ?? optedIn
+            : optedIn;
+        console.warn('is_default_on: \n\n', is_default_on);
+        fetchNetworkData({ ...quote, is_default_on: is_default_on });
       },
     }),
-    []
+    [optedIn]
   );
   async function fetchNetworkData(quote: IQuotesRequest) {
     try {
@@ -137,6 +147,18 @@ const SeelWFPWidget = (
     onChangeValue({ optedIn, quotesResponse });
   }, [onChangeValue, optedIn, quotesResponse]);
 
+  const onChangeOptedInValue = async (value: boolean) => {
+    setModalVisible(false);
+    if (status === ResponseStatusEnum.Accepted) {
+      await writeOptedIn(value);
+      setOptedIn(value);
+      onChangeValue({ optedIn, quotesResponse });
+    } else {
+      setOptedIn(false);
+      onChangeValue({ optedIn, quotesResponse });
+    }
+  };
+
   const renderEligibleModalView = () => {
     return (
       <SeelWFPInfoView
@@ -148,16 +170,7 @@ const SeelWFPWidget = (
         onClickClose={() => {
           setModalVisible(false);
         }}
-        onChangeOptedInValue={(value: boolean) => {
-          setModalVisible(false);
-          if (status === ResponseStatusEnum.Accepted) {
-            setOptedIn(value);
-            onChangeValue({ optedIn, quotesResponse });
-          } else {
-            setOptedIn(false);
-            onChangeValue({ optedIn, quotesResponse });
-          }
-        }}
+        onChangeOptedInValue={onChangeOptedInValue}
       />
     );
   };
@@ -226,15 +239,7 @@ const SeelWFPWidget = (
             onClickInfoIcon={() => {
               setModalVisible(true);
             }}
-            onChangeOptedInValue={async (value: boolean) => {
-              if (status === ResponseStatusEnum.Accepted) {
-                writeOptedIn(value);
-                setOptedIn(value);
-                onChangeValue({ optedIn, quotesResponse });
-              } else {
-                setModalVisible(true);
-              }
-            }}
+            onChangeOptedInValue={onChangeOptedInValue}
           />
           <Modal
             animationType={
