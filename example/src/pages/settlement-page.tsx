@@ -52,6 +52,7 @@ export default function SettlementPage() {
         <SeelWFPWidget
           ref={seelWidgetRef}
           domain={domain}
+          defaultOptedIn={true}
           onChangeValue={function ({
             optedIn,
             quotesResponse,
