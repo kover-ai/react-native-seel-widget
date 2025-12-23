@@ -205,7 +205,7 @@ export interface IQuotesRequest {
   /**
    * The default opt-in setting for the quote
    */
-  is_default_on: boolean;
+  is_default_on?: boolean;
 
   /**
    * The list of items included in the quote.
