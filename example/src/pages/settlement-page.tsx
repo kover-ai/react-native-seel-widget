@@ -53,13 +53,13 @@ export default function SettlementPage() {
           ref={seelWidgetRef}
           domain={domain}
           defaultOptedIn={true}
-          onChangeValue={function ({
+          onChangeValue={({
             optedIn,
             quotesResponse,
           }: {
             optedIn: boolean;
             quotesResponse?: IQuotesResponse;
-          }): void {
+          }): void => {
             console.log(optedIn, quotesResponse);
           }}
         />
