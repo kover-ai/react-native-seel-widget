@@ -98,6 +98,13 @@ export class SeelWidgetSDK {
   }
 
   /**
+   * Set current Opt-Out Expired Time
+   */
+  public set optOutExpiredTime(value: number) {
+    this._optOutExpiredTime = value;
+  }
+
+  /**
    * Get current BaseURL
    */
   public get baseURL(): string {
