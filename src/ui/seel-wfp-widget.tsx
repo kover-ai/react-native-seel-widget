@@ -72,9 +72,10 @@ const SeelWFPWidget = (
         const optOutExpiredTime = await readOptOutExpiredTime();
         const is_default_on =
           new Date().getTime() < optOutExpiredTime
-            ? (await readOptedIn()) ?? optedIn
+            ? (await readOptedIn()) === false
+              ? false
+              : optedIn
             : optedIn;
-        console.warn('is_default_on: \n\n', is_default_on);
         fetchNetworkData({ ...quote, is_default_on: is_default_on });
       },
     }),
@@ -148,14 +149,15 @@ const SeelWFPWidget = (
   }, [onChangeValue, optedIn, quotesResponse]);
 
   const onChangeOptedInValue = async (value: boolean) => {
+    console.warn('SeelWFPWidget onChangeValue');
     setModalVisible(false);
     if (status === ResponseStatusEnum.Accepted) {
       await writeOptedIn(value);
       setOptedIn(value);
-      onChangeValue({ optedIn, quotesResponse });
+      onChangeValue({ optedIn: value, quotesResponse });
     } else {
       setOptedIn(false);
-      onChangeValue({ optedIn, quotesResponse });
+      onChangeValue({ optedIn: false, quotesResponse });
     }
   };
 
