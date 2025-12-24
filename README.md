@@ -62,13 +62,13 @@ export default function YourPage() {
       <SeelWFPWidget
         ref={seelWidgetRef}
         domain={domain}
-        onChangeValue={function ({
+        onChangeValue={({
           optedIn,
           quotesResponse,
         }: {
           optedIn: boolean;
           quotesResponse?: IQuotesResponse;
-        }): void {
+        }): void => {
           console.log(optedIn, quotesResponse);
         }}
       />
