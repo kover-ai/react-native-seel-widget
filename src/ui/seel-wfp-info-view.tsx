@@ -13,10 +13,15 @@ import {
 import { CoverageInfoFooter } from './coverage-info-footer';
 import { KeyValue } from '../constants/key_value';
 
-export type Domain = '' | 'US' | 'EU';
+export enum DomainEnum {
+  Idle = '',
+  US = 'US',
+  EU = 'EU',
+  Default = DomainEnum.US,
+}
 
 export interface SeelWFPInfoViewProps {
-  domain: Domain;
+  domain: DomainEnum;
   widgetTitle: string;
   termsUrl: string;
   privacyPolicyUrl: string;
@@ -26,7 +31,7 @@ export interface SeelWFPInfoViewProps {
 }
 
 export function SeelWFPInfoView({
-  domain = '',
+  domain = DomainEnum.Idle,
   widgetTitle = '',
   termsUrl = '',
   privacyPolicyUrl = '',
@@ -102,17 +107,17 @@ export function SeelWFPInfoView({
                 defaultStyles.scrollViewContentContainer,
               ]}
             >
-              {domain === 'US' ? (
+              {domain === DomainEnum.US ? (
                 <Text style={defaultStyles.h4}>
                   {dictionary[KeyValue.get_full_refund] ?? ''}
                 </Text>
               ) : null}
-              {domain === 'EU' /*|| domain === 'IE'*/ ? (
+              {domain === DomainEnum.EU ? (
                 <Text style={defaultStyles.h4}>
                   {dictionary[KeyValue.standard_coverage_intro] ?? ''}
                 </Text>
               ) : null}
-              {(domain === 'US'
+              {(domain === DomainEnum.US
                 ? [
                     dictionary[KeyValue.lost_in_transit] ?? '',
                     dictionary[KeyValue.item_not_as_described] ?? '',
@@ -144,7 +149,7 @@ export function SeelWFPInfoView({
                 );
               })}
             </View>
-            {domain === 'US' ? (
+            {domain === DomainEnum.US ? (
               <View
                 style={[
                   { marginTop: spacing },
@@ -168,7 +173,7 @@ export function SeelWFPInfoView({
                 </Text>
               </View>
             ) : null}
-            {domain === 'EU' /*|| domain === 'IE'*/ ? (
+            {domain === DomainEnum.EU ? (
               <View
                 style={[
                   { marginTop: spacing },

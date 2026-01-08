@@ -7,8 +7,8 @@ import {
   type CoverageInfoFooterProps,
 } from './ui/coverage-info-footer';
 import {
+  DomainEnum,
   SeelWFPInfoView,
-  type Domain,
   type SeelWFPInfoViewProps,
 } from './ui/seel-wfp-info-view';
 import {
@@ -17,10 +17,16 @@ import {
 } from './ui/seel-wfp-title-view';
 import SeelWFPWidget, { type SeelWFPWidgetRef } from './ui/seel-wfp-widget';
 
-export { CoverageInfoFooter, SeelWFPInfoView, SeelWFPTitleView, SeelWFPWidget };
+export {
+  CoverageInfoFooter,
+  DomainEnum,
+  SeelWFPInfoView,
+  SeelWFPTitleView,
+  SeelWFPWidget,
+};
+
 export type {
   CoverageInfoFooterProps,
-  Domain,
   SeelWFPInfoViewProps,
   SeelWFPTitleViewProps,
   SeelWFPWidgetRef,

@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SeelWFPTitleView } from './seel-wfp-title-view';
-import { SeelWFPInfoView, type Domain } from './seel-wfp-info-view';
+import { SeelWFPInfoView, DomainEnum } from './seel-wfp-info-view';
 import {
   KeyValue,
   NetworkRequestStatueEnum,
@@ -30,7 +30,7 @@ export interface SeelWFPWidgetRef {
 }
 
 interface SeelWFPWidgetProps {
-  domain: Domain;
+  domain: DomainEnum;
   defaultOptedIn: boolean;
   onChangeValue: ({
     optedIn,
@@ -43,7 +43,7 @@ interface SeelWFPWidgetProps {
 
 const SeelWFPWidget = (
   {
-    domain = '',
+    domain = DomainEnum.Idle,
     defaultOptedIn = false,
     onChangeValue = ({ optedIn, quotesResponse }) => {
       console.log(optedIn, quotesResponse);
