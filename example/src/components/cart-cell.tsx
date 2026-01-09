@@ -193,13 +193,14 @@ const defaultStyles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    boxShadow: '0 1 2 rgba(0, 0, 0, 0.1)',
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 2,
     elevation: 2,
   },
   rowContainer: {
