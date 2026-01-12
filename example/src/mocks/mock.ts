@@ -1,5 +1,4 @@
 import type { IQuotesRequest } from 'react-native-seel-widget';
-import type { CartItem } from '../pages/cart-page';
 
 /**
  * Mock data for development and testing
@@ -178,58 +177,12 @@ export const mockQuoteUS: IQuotesRequest = {
 };
 
 /**
- * Mock cart items for testing
- */
-export const mockCartItems: CartItem[] = [
-  {
-    id: '1',
-    productId: '10013-0000-319802',
-    productName: 'Williams Brand Allegro 2 Model Digital Piano',
-    price: '50.00',
-    quantity: 3,
-    imageUrl: 'https://example.com/image1.jpg',
-  },
-  {
-    id: '2',
-    productId: '10013-0000-319803',
-    productName: 'Williams Brand Allegro 2',
-    price: '15.00',
-    quantity: 2,
-    imageUrl: 'https://example.com/image2.jpg',
-  },
-  {
-    id: '3',
-    productId: '10013-0000-319804',
-    productName: 'Digital Piano Stand',
-    price: '25.99',
-    quantity: 1,
-    imageUrl: 'https://example.com/image3.jpg',
-  },
-];
-
-/**
  * Get mock quote by domain
  * @param domain - 'EU' or 'US'
  * @returns Mock quote request
  */
 export const getMockQuote = (domain: 'EU' | 'US'): IQuotesRequest => {
   return domain === 'EU' ? mockQuoteEU : mockQuoteUS;
-};
-
-/**
- * Generate mock cart items
- * @param count - Number of items to generate
- * @returns Array of mock cart items
- */
-export const generateMockCartItems = (count: number = 5): CartItem[] => {
-  return Array.from({ length: count }, (_, index) => ({
-    id: `mock-item-${index + 1}`,
-    productId: `product-${index + 1}`,
-    productName: `Mock Product ${index + 1}`,
-    price: `${(Math.random() * 100 + 10).toFixed(2)}`,
-    quantity: Math.floor(Math.random() * 5) + 1,
-    imageUrl: `https://example.com/product-${index + 1}.jpg`,
-  }));
 };
 
 /**
