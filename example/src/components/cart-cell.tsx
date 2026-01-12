@@ -17,11 +17,12 @@ interface CartCellProps {
     index,
     quantity,
   }: {
-    item?: IQuotesRequestLineItem;
+    item: IQuotesRequestLineItem;
     index: number;
     quantity: number;
   }) => void;
   onPress?: (item: IQuotesRequestLineItem) => void;
+  readonly?: boolean; // If true, disable quantity editing
 }
 
 export default function CartCell({
@@ -29,6 +30,7 @@ export default function CartCell({
   index,
   onChangeQuantity,
   onPress,
+  readonly = false,
 }: CartCellProps) {
   const { product_title, price, quantity = 0, image_urls = [] } = item;
   const imageUrl = image_urls[0];
@@ -137,43 +139,49 @@ export default function CartCell({
           </View>
 
           <View style={defaultStyles.actionsContainer}>
-            <View style={defaultStyles.quantityContainer}>
-              <TouchableOpacity
-                style={[
-                  defaultStyles.quantityButton,
-                  quantity <= 1 && defaultStyles.quantityButtonDisabled,
-                ]}
-                onPress={handleDecrease}
-                disabled={quantity <= 1}
-                activeOpacity={0.7}
-              >
-                <Text
+            {readonly ? (
+              <View style={defaultStyles.quantityContainer}>
+                <Text style={defaultStyles.quantityText}>Qty: {quantity}</Text>
+              </View>
+            ) : (
+              <View style={defaultStyles.quantityContainer}>
+                <TouchableOpacity
                   style={[
-                    defaultStyles.quantityButtonText,
-                    quantity <= 1 && defaultStyles.quantityButtonTextDisabled,
+                    defaultStyles.quantityButton,
+                    quantity <= 1 && defaultStyles.quantityButtonDisabled,
                   ]}
+                  onPress={handleDecrease}
+                  disabled={quantity <= 1}
+                  activeOpacity={0.7}
                 >
-                  -
-                </Text>
-              </TouchableOpacity>
-              <TextInput
-                style={defaultStyles.quantityInput}
-                value={inputValue}
-                onChangeText={handleQuantityInputChange}
-                onBlur={handleQuantityInputBlur}
-                onFocus={handleQuantityInputFocus}
-                keyboardType="number-pad"
-                selectTextOnFocus
-                maxLength={4}
-              />
-              <TouchableOpacity
-                style={defaultStyles.quantityButton}
-                onPress={handleIncrease}
-                activeOpacity={0.7}
-              >
-                <Text style={defaultStyles.quantityButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
+                  <Text
+                    style={[
+                      defaultStyles.quantityButtonText,
+                      quantity <= 1 && defaultStyles.quantityButtonTextDisabled,
+                    ]}
+                  >
+                    -
+                  </Text>
+                </TouchableOpacity>
+                <TextInput
+                  style={defaultStyles.quantityInput}
+                  value={inputValue}
+                  onChangeText={handleQuantityInputChange}
+                  onBlur={handleQuantityInputBlur}
+                  onFocus={handleQuantityInputFocus}
+                  keyboardType="number-pad"
+                  selectTextOnFocus
+                  maxLength={4}
+                />
+                <TouchableOpacity
+                  style={defaultStyles.quantityButton}
+                  onPress={handleIncrease}
+                  activeOpacity={0.7}
+                >
+                  <Text style={defaultStyles.quantityButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
 
@@ -255,10 +263,10 @@ const defaultStyles = StyleSheet.create({
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 6,
-    backgroundColor: '#f9f9f9',
+    // borderWidth: 1,
+    // borderColor: '#e0e0e0',
+    // borderRadius: 6,
+    // backgroundColor: '#f9f9f9',
   },
   quantityButton: {
     width: 32,
@@ -282,7 +290,7 @@ const defaultStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333333',
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     minWidth: 40,
     textAlign: 'center',
   },
@@ -290,8 +298,8 @@ const defaultStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333333',
-    paddingHorizontal: 8,
-    minWidth: 40,
+    paddingHorizontal: 4,
+    width: 90,
     textAlign: 'center',
     backgroundColor: '#ffffff',
   },
