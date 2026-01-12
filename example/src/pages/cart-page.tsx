@@ -85,6 +85,15 @@ export default function CartPage() {
     });
   };
 
+  const toISOString = (timestamp: number | string): string => {
+    if (isNaN(+timestamp) === false) {
+      const datetime = new Date(+timestamp);
+      return datetime.toISOString();
+    } else {
+      return '';
+    }
+  };
+
   return (
     <SafeAreaView
       style={[defaultStyles.safeAreaContainer]}
@@ -144,51 +153,15 @@ export default function CartPage() {
             }}
           />
         </View>
-        <View style={[defaultStyles.container, defaultStyles.columnContainer]}>
-          {/* <View style={[defaultStyles.rowContainer]}>
-          <TouchableOpacity
-            style={[defaultStyles.button, defaultStyles.centerContainer]}
-            onPress={() => {
-              setDomain(DomainEnum.EU);
-              setRequest(quoteEU);
-            }}
+        {!optedIn && (
+          <View
+            style={[defaultStyles.container, defaultStyles.columnContainer]}
           >
-            <Text>Setup EU</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[defaultStyles.button, defaultStyles.centerContainer]}
-            onPress={() => {
-              setDomain(DomainEnum.US);
-              setRequest(quoteUS);
-            }}
-          >
-            <Text>Setup US</Text>
-          </TouchableOpacity>
-        </View> */}
-          {/* <View style={[defaultStyles.rowContainer]}>
-            <TouchableOpacity
-              style={[defaultStyles.button, defaultStyles.centerContainer]}
-              onPress={async () => {
-                SeelWidgetSDK.shared.optOutExpiredTime = 10 * 1000;
-              }}
-            >
-              <Text>Setup Opt-out 10s</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[defaultStyles.button, defaultStyles.centerContainer]}
-              onPress={() => {
-                setDefaultOptedIn((prev) => !prev);
-              }}
-            >
-              <Text>
-                Setup DefaultOptedIn to {!defaultOptedIn ? 'true' : 'false'}
-              </Text>
-            </TouchableOpacity>
-          </View> */}
-          <View style={[defaultStyles.rowContainer, defaultStyles.p24]}>
-            <Text>optedValidTime: {optedValidTime}</Text>
+            <View style={[defaultStyles.rowContainer, defaultStyles.p24]}>
+              <Text>Opted-In Valid Time: {toISOString(optedValidTime)}</Text>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
       <SafeAreaView edges={['bottom']} style={defaultStyles.checkoutContainer}>
         <TouchableOpacity
