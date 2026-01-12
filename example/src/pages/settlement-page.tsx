@@ -1,7 +1,16 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
 
-import { Modal, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import {
+  Modal,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+} from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,6 +19,7 @@ import { DomainEnum } from '../../../src';
 import { type IQuotesResponse } from '../../../src';
 
 import CartCell from '../components/cart-cell';
+import Subtotal from '../components/subtotal';
 import { mockQuoteEU as quoteEU, mockQuoteUS as quoteUS } from '../mocks';
 import { readOptOutExpiredTime } from '../../../src/utils/storage_util';
 import SettingsPage, {
@@ -17,8 +27,13 @@ import SettingsPage, {
   type OptOutExpiredTime,
 } from './settings-page';
 
+type SettlementPageNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Settlement'
+>;
+
 export default function SettlementPage() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<SettlementPageNavigationProp>();
   const [domain, setDomain] = useState<DomainEnum>(DomainEnum.EU);
   const [request, setRequest] = useState(domain === 'EU' ? quoteEU : quoteUS);
   const [defaultOptedIn, setDefaultOptedIn] = useState(true);
@@ -27,6 +42,8 @@ export default function SettlementPage() {
   );
   const [optedValidTime, setOptedValidTime] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [optedIn, setOptedIn] = useState(defaultOptedIn);
+  const [quotePrice, setQuotePrice] = useState<number | undefined>(undefined);
   const initialRef: any = null;
   const seelWidgetRef = useRef<any>(initialRef);
 
@@ -58,57 +75,77 @@ export default function SettlementPage() {
     };
     setup();
   }, [request]);
+  const handleCheckout = () => {
+    console.log('Checkout pressed');
+    navigation.navigate('Checkout', {
+      lineItems: request.line_items || [],
+      request: request,
+      domain: domain,
+      defaultOptedIn: optedIn,
+    });
+  };
+
   return (
     <SafeAreaView
       style={[defaultStyles.safeAreaContainer]}
-      edges={['right', 'bottom', 'left']}
+      edges={['right', 'left']}
     >
-      <View>
-        {request.line_items.map((obj, idx) => {
-          return (
-            <CartCell
-              key={obj.product_id}
-              item={obj}
-              index={idx}
-              onChangeQuantity={({ item, index, quantity }) => {
-                let line_items = request.line_items || [];
-                line_items[index] = Object.assign({}, item, {
-                  quantity,
-                });
-                setRequest(Object.assign({}, request, { line_items }));
-              }}
-            />
-          );
-        })}
-      </View>
-      <View style={[defaultStyles.box]}>
-        <SeelWFPWidget
-          ref={seelWidgetRef}
-          domain={domain}
-          defaultOptedIn={defaultOptedIn}
-          onChangeValue={async ({
-            optedIn,
-            quotesResponse,
-          }: {
-            optedIn: boolean;
-            quotesResponse?: IQuotesResponse;
-          }) => {
-            console.debug(
-              'optedIn:\n\n',
-              optedIn,
-              'quotesResponse.is_default_on:',
-              quotesResponse?.is_default_on
+      <ScrollView
+        style={defaultStyles.scrollView}
+        contentContainerStyle={defaultStyles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View>
+          {request.line_items.map((obj, idx) => {
+            return (
+              <CartCell
+                key={obj.product_id}
+                item={obj}
+                index={idx}
+                onChangeQuantity={({ item, index, quantity }) => {
+                  let line_items = [...(request.line_items || [])];
+                  line_items[index] = { ...item, quantity };
+                  setRequest({ ...request, line_items });
+                }}
+              />
             );
-            if (optedIn === false) {
-              const _optedValidTime = await readOptOutExpiredTime();
-              setOptedValidTime(_optedValidTime.toString());
-              console.warn('optedValidTime:\n\n', _optedValidTime);
-            }
-          }}
+          })}
+        </View>
+        <Subtotal
+          lineItems={request.line_items || []}
+          optedIn={optedIn}
+          quotePrice={quotePrice}
         />
-      </View>
-      <View style={[defaultStyles.container, defaultStyles.columnContainer]}>
-        {/* <View style={[defaultStyles.rowContainer]}>
+        <View style={[defaultStyles.box]}>
+          <SeelWFPWidget
+            ref={seelWidgetRef}
+            domain={domain}
+            defaultOptedIn={defaultOptedIn}
+            onChangeValue={async ({
+              optedIn: newOptedIn,
+              quotesResponse,
+            }: {
+              optedIn: boolean;
+              quotesResponse?: IQuotesResponse;
+            }) => {
+              console.debug(
+                'optedIn:\n\n',
+                newOptedIn,
+                'quotesResponse.is_default_on:',
+                quotesResponse?.is_default_on
+              );
+              setOptedIn(newOptedIn);
+              setQuotePrice(quotesResponse?.price);
+              if (newOptedIn === false) {
+                const _optedValidTime = await readOptOutExpiredTime();
+                setOptedValidTime(_optedValidTime.toString());
+                console.warn('optedValidTime:\n\n', _optedValidTime);
+              }
+            }}
+          />
+        </View>
+        <View style={[defaultStyles.container, defaultStyles.columnContainer]}>
+          {/* <View style={[defaultStyles.rowContainer]}>
           <TouchableOpacity
             style={[defaultStyles.button, defaultStyles.centerContainer]}
             onPress={() => {
@@ -128,30 +165,40 @@ export default function SettlementPage() {
             <Text>Setup US</Text>
           </TouchableOpacity>
         </View> */}
-        <View style={[defaultStyles.rowContainer]}>
-          <TouchableOpacity
-            style={[defaultStyles.button, defaultStyles.centerContainer]}
-            onPress={async () => {
-              SeelWidgetSDK.shared.optOutExpiredTime = 10 * 1000;
-            }}
-          >
-            <Text>Setup Opt-out 10s</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[defaultStyles.button, defaultStyles.centerContainer]}
-            onPress={() => {
-              setDefaultOptedIn((prev) => !prev);
-            }}
-          >
-            <Text>
-              Setup DefaultOptedIn to {!defaultOptedIn ? 'true' : 'false'}
-            </Text>
-          </TouchableOpacity>
+          {/* <View style={[defaultStyles.rowContainer]}>
+            <TouchableOpacity
+              style={[defaultStyles.button, defaultStyles.centerContainer]}
+              onPress={async () => {
+                SeelWidgetSDK.shared.optOutExpiredTime = 10 * 1000;
+              }}
+            >
+              <Text>Setup Opt-out 10s</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[defaultStyles.button, defaultStyles.centerContainer]}
+              onPress={() => {
+                setDefaultOptedIn((prev) => !prev);
+              }}
+            >
+              <Text>
+                Setup DefaultOptedIn to {!defaultOptedIn ? 'true' : 'false'}
+              </Text>
+            </TouchableOpacity>
+          </View> */}
+          <View style={[defaultStyles.rowContainer, defaultStyles.p24]}>
+            <Text>optedValidTime: {optedValidTime}</Text>
+          </View>
         </View>
-        <View style={[defaultStyles.rowContainer, defaultStyles.p24]}>
-          <Text>optedValidTime: {optedValidTime}</Text>
-        </View>
-      </View>
+      </ScrollView>
+      <SafeAreaView edges={['bottom']} style={defaultStyles.checkoutContainer}>
+        <TouchableOpacity
+          style={defaultStyles.checkoutButton}
+          onPress={handleCheckout}
+          activeOpacity={0.8}
+        >
+          <Text style={defaultStyles.checkoutButtonText}>Checkout</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
       <Modal
         animationType="slide"
         transparent={true}
@@ -205,12 +252,45 @@ const defaultStyles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 16,
+  },
+  checkoutContainer: {
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  checkoutButton: {
+    backgroundColor: '#615BFB',
+    borderRadius: 8,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  checkoutButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   box: {
     // width: 370,
     // height: 80,
   },
   container: {
-    flex: 1,
     paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
