@@ -171,6 +171,48 @@ export default function SettingsPage({
               ) : null}
             </TouchableOpacity>
           </View>
+
+          <View style={defaultStyles.settingItem}>
+            <Text style={defaultStyles.settingLabel}>One Hour</Text>
+            <TouchableOpacity
+              style={[
+                defaultStyles.radioButton,
+                settings.optOutExpiredTime === OptOutExpiredTimeEnum.OneHour &&
+                  defaultStyles.radioButtonActive,
+              ]}
+              onPress={() => {
+                onChangeSettings({
+                  ...settings,
+                  optOutExpiredTime: OptOutExpiredTimeEnum.OneHour,
+                });
+              }}
+            >
+              {settings.optOutExpiredTime === OptOutExpiredTimeEnum.OneHour ? (
+                <View style={defaultStyles.radioDot} />
+              ) : null}
+            </TouchableOpacity>
+          </View>
+
+          <View style={defaultStyles.settingItem}>
+            <Text style={defaultStyles.settingLabel}>One Year</Text>
+            <TouchableOpacity
+              style={[
+                defaultStyles.radioButton,
+                settings.optOutExpiredTime === OptOutExpiredTimeEnum.OneYear &&
+                  defaultStyles.radioButtonActive,
+              ]}
+              onPress={() => {
+                onChangeSettings({
+                  ...settings,
+                  optOutExpiredTime: OptOutExpiredTimeEnum.OneYear,
+                });
+              }}
+            >
+              {settings.optOutExpiredTime === OptOutExpiredTimeEnum.OneYear ? (
+                <View style={defaultStyles.radioDot} />
+              ) : null}
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 
