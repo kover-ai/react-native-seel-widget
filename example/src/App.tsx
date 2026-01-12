@@ -2,6 +2,7 @@ import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import CartPage from './pages/cart-page';
+import CheckoutPage from './pages/checkout-page';
 import SettlementPage from './pages/settlement-page';
 
 import { SeelEnvironment, SeelWidgetSDK } from '../../src';
@@ -11,21 +12,25 @@ SeelWidgetSDK.shared.configure({
   environment: SeelEnvironment.Development,
 });
 
-console.log('SeelWidgetSDK.shared:', SeelWidgetSDK.shared.apiKey);
-
 const RootStack = createNativeStackNavigator({
   screens: {
     Cart: {
       screen: CartPage,
       options: {
-        title: 'Shopping Cart',
+        title: 'Cart',
       },
     },
     Settlement: {
       screen: SettlementPage,
     },
+    Checkout: {
+      screen: CheckoutPage,
+      options: {
+        title: 'Checkout',
+      },
+    },
   },
-  initialRouteName: 'Settlement',
+  initialRouteName: 'Cart',
   screenOptions: {
     headerStyle: { backgroundColor: 'white' },
   },
