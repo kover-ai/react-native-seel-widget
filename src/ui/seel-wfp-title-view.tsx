@@ -13,7 +13,7 @@ import GradientAnimationText, {
   type GradientAnimationTextRef,
 } from './gradient-animation-text';
 import { useRef } from 'react';
-import { NetworkRequestStatueEnum } from '../constants/network_request_statue_enum';
+import { NetworkRequestStatusEnum } from '../constants/network_request_status_enum';
 import { ResponseStatusEnum } from '../constants';
 
 export interface SeelWFPTitleViewProps {
@@ -77,7 +77,7 @@ export interface SeelWFPTitleViewProps {
   pressable?: boolean;
   optedIn: boolean;
   dictionary: any;
-  loadingStatue: NetworkRequestStatueEnum;
+  loadingStatue: NetworkRequestStatusEnum;
   onChangeOptedInValue: (optedIn: boolean) => void;
 }
 
@@ -96,7 +96,7 @@ export function SeelWFPTitleView({
   darkPriceStyle,
   optedIn = false,
   dictionary = {},
-  loadingStatue = NetworkRequestStatueEnum.Idle,
+  loadingStatue = NetworkRequestStatusEnum.Idle,
   onClickInfoIcon,
   onChangeOptedInValue = (_: boolean) => {},
 }: SeelWFPTitleViewProps) {
@@ -189,7 +189,7 @@ export function SeelWFPTitleView({
           hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
           onPress={() => {
             // eslint-disable-next-line no-bitwise
-            if ((loadingStatue & NetworkRequestStatueEnum.Success) !== 0) {
+            if ((loadingStatue & NetworkRequestStatusEnum.Success) !== 0) {
               onChangeOptedInValue(!optedIn);
             }
           }}
@@ -215,7 +215,7 @@ export function SeelWFPTitleView({
             ) : null}
 
             {/* eslint-disable-next-line no-bitwise */}
-            {(loadingStatue & NetworkRequestStatueEnum.Loading) === 0 ? (
+            {(loadingStatue & NetworkRequestStatusEnum.Loading) === 0 ? (
               status === ResponseStatusEnum.Accepted ? (
                 <Text style={_priceStyle} adjustsFontSizeToFit>
                   {price}
@@ -230,7 +230,7 @@ export function SeelWFPTitleView({
                 />
               </View>
             )}
-            {loadingStatue === NetworkRequestStatueEnum.Success &&
+            {loadingStatue === NetworkRequestStatusEnum.Success &&
             status === ResponseStatusEnum.Accepted
               ? renderInfoButton()
               : null}

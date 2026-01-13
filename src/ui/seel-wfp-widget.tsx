@@ -11,7 +11,7 @@ import { SeelWFPTitleView } from './seel-wfp-title-view';
 import { SeelWFPInfoView, DomainEnum } from './seel-wfp-info-view';
 import {
   KeyValue,
-  NetworkRequestStatueEnum,
+  NetworkRequestStatusEnum,
   ResponseStatusEnum,
 } from '../constants';
 
@@ -61,8 +61,8 @@ const SeelWFPWidget = (
   const [dictionary, setDictionary] = useState<any>({});
   const [price, setPrice] = useState('');
   const [status, setStatus] = useState('');
-  const [loadingStatue, setLoadingStatus] = useState<NetworkRequestStatueEnum>(
-    NetworkRequestStatueEnum.Idle
+  const [loadingStatue, setLoadingStatus] = useState<NetworkRequestStatusEnum>(
+    NetworkRequestStatusEnum.Idle
   );
 
   useImperativeHandle(
@@ -83,10 +83,10 @@ const SeelWFPWidget = (
   );
   async function fetchNetworkData(quote: IQuotesRequest) {
     try {
-      setLoadingStatus(NetworkRequestStatueEnum.Loading);
+      setLoadingStatus(NetworkRequestStatusEnum.Loading);
       const response = await createQuote(quote);
       console.log('response quote:', quote);
-      setLoadingStatus(NetworkRequestStatueEnum.Success);
+      setLoadingStatus(NetworkRequestStatusEnum.Success);
       setQuotesResponse(response);
       let _status = response.status ?? '';
       // _status = 'rejected';
@@ -138,7 +138,7 @@ const SeelWFPWidget = (
       }
     } catch (error) {
       console.warn(error);
-      setLoadingStatus(NetworkRequestStatueEnum.Failed);
+      setLoadingStatus(NetworkRequestStatusEnum.Failed);
       setModalVisible(false);
       setVisible(false);
     }

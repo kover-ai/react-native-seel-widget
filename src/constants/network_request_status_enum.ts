@@ -1,4 +1,4 @@
-export enum NetworkRequestStatueEnum {
+export enum NetworkRequestStatusEnum {
   /* eslint-disable no-bitwise */
   Idle = 1 << 0,
   Refreshing = 1 << 1,
