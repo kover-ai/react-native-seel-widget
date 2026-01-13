@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SeelWidgetSDK } from '../core';
+import { logger } from './logger';
 
 const StorageValue = {
   True: '1',
@@ -12,11 +13,11 @@ export const AsyncStorageKey = {
 };
 
 function logSetError(key: string, error: unknown) {
-  console.error('Failed to set [', key, '] error:', error);
+  logger.error('Failed to set [', key, '] error:', error);
 }
 
 function logGetError(key: string, error: unknown) {
-  console.error('Failed to get [', key, '] error:', error);
+  logger.error('Failed to get [', key, '] error:', error);
 }
 
 export const writeOptedIn = async (value: boolean): Promise<void> => {
@@ -39,7 +40,7 @@ export const readOptedIn = async (): Promise<boolean | null> => {
   const key = AsyncStorageKey.OptedIn;
   try {
     const value = await AsyncStorage.getItem(key);
-    console.warn('readOptedIn value:\n\n', value);
+    logger.warn('readOptedIn value:\n\n', value);
     return value !== null && value !== '' && value !== StorageValue.False;
   } catch (error) {
     logGetError(key, error);

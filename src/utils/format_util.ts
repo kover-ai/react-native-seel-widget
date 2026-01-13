@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 export const moneyFormat = (money: any, currency: string, options: any) => {
   try {
     // 解构options参数，提供默认值
@@ -93,7 +95,7 @@ export const moneyFormat = (money: any, currency: string, options: any) => {
     }
     return `${numberFormat.format(targetMoney || 0)}`;
   } catch (error) {
-    console.warn('moneyFormat error:', error);
+    logger.warn('moneyFormat error:', error);
     // 降级处理：返回简单的格式化结果
     const propsCurrency = currency || '';
     const { showCurrency = true, fallbackValue = '-' } = options;

@@ -1,4 +1,5 @@
 import { SeelWidgetSDK } from '../core/SeelWidgetSDK';
+import { logger } from '../utils';
 
 export interface RequestHeaders {
   'X-Seel-API-Key': string;
@@ -138,7 +139,7 @@ class Request {
         ...options?.headers,
       };
 
-      console.log('headers:', headers);
+      logger.info('headers:', headers);
 
       // Build request body
       let body: string | undefined;

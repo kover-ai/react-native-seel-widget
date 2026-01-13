@@ -15,6 +15,7 @@ import GradientAnimationText, {
 import { useRef } from 'react';
 import { NetworkRequestStatusEnum } from '../constants';
 import { ResponseStatusEnum } from '../constants';
+import { logger } from '../utils';
 
 export interface SeelWFPTitleViewProps {
   status: string;
@@ -139,7 +140,7 @@ export function SeelWFPTitleView({
         style={defaultStyles.infoIconButton}
         hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
         onPress={() => {
-          console.log('Push To Info Page');
+          logger.info('Push To Info Page');
           if (!!onClickInfoIcon && typeof onClickInfoIcon === 'function') {
             onClickInfoIcon();
           }

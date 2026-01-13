@@ -19,6 +19,7 @@ import type { IQuotesRequest } from '../dto/IQuotesRequest';
 import type { IQuotesResponse } from '../dto/IQuotesResponse';
 import {
   createQuote,
+  logger,
   moneyFormat,
   readOptedIn,
   readOptOutExpiredTime,
@@ -46,7 +47,7 @@ const SeelWFPWidget = (
     domain = DomainEnum.Idle,
     defaultOptedIn = false,
     onChangeValue = ({ optedIn, quotesResponse }) => {
-      console.log(optedIn, quotesResponse);
+      logger.info(optedIn, quotesResponse);
     },
   }: SeelWFPWidgetProps,
   ref: any
@@ -85,7 +86,7 @@ const SeelWFPWidget = (
     try {
       setLoadingStatus(NetworkRequestStatusEnum.Loading);
       const response = await createQuote(quote);
-      console.log('response quote:', quote);
+      logger.info('response quote:', quote);
       setLoadingStatus(NetworkRequestStatusEnum.Success);
       setQuotesResponse(response);
       let _status = response.status ?? '';
@@ -122,7 +123,7 @@ const SeelWFPWidget = (
             }
           });
         } catch (error) {
-          console.warn('error:', error);
+          logger.warn('error:', error);
         }
         setDictionary(dict);
         setPrice(_price);
@@ -137,7 +138,7 @@ const SeelWFPWidget = (
         // setVisible(false);
       }
     } catch (error) {
-      console.warn(error);
+      logger.warn(error);
       setLoadingStatus(NetworkRequestStatusEnum.Failed);
       setModalVisible(false);
       setVisible(false);
@@ -149,7 +150,7 @@ const SeelWFPWidget = (
   }, [onChangeValue, optedIn, quotesResponse]);
 
   const onChangeOptedInValue = async (value: boolean) => {
-    console.warn('SeelWFPWidget onChangeValue');
+    logger.warn('SeelWFPWidget onChangeValue');
     setModalVisible(false);
     if (status === ResponseStatusEnum.Accepted) {
       await writeOptedIn(value);
