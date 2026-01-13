@@ -1,6 +1,6 @@
 {
   "name": "react-native-seel-widget",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "React Native Seel Widget",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
