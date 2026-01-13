@@ -21,7 +21,7 @@ import { type IQuotesResponse } from '../../../src';
 import CartCell from '../components/cart-cell';
 import Subtotal from '../components/subtotal';
 import { mockQuoteEU as quoteEU, mockQuoteUS as quoteUS } from '../mocks';
-import { readOptOutExpiredTime } from '../../../src/utils/storage_util';
+import { readOptOutExpiredTime } from '../../../src/utils';
 import SettingsPage, {
   OptOutExpiredTimeEnum,
   type OptOutExpiredTime,
