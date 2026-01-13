@@ -83,7 +83,7 @@ class Logger {
    */
   debug(...args: unknown[]): void {
     if (this.shouldLog(LogLevel.Debug) && this.isDevelopment) {
-      console.log(...this.formatMessage('DEBUG', ...args));
+      console.debug(...this.formatMessage('DEBUG', ...args));
     }
   }
 
