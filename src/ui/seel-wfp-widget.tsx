@@ -17,13 +17,13 @@ import {
 
 import type { IQuotesRequest } from '../dto/IQuotesRequest';
 import type { IQuotesResponse } from '../dto/IQuotesResponse';
-import { createQuote } from '../utils/http_util';
-import { moneyFormat } from '../utils/format_util';
 import {
+  createQuote,
+  moneyFormat,
   readOptedIn,
   readOptOutExpiredTime,
   writeOptedIn,
-} from '../utils/storage_util';
+} from '../utils';
 
 export interface SeelWFPWidgetRef {
   setup(quote: IQuotesRequest): void;

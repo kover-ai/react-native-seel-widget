@@ -2,7 +2,7 @@ import { SeelWidgetSDK } from '../core/SeelWidgetSDK';
 import type { IEvents } from '../dto/IEvents';
 import type { IQuotesRequest } from '../dto/IQuotesRequest';
 import type { IQuotesResponse } from '../dto/IQuotesResponse';
-import { post } from '../network/request';
+import { post } from '../network';
 
 export enum NetworkErrorEnum {
   InvalidURL,

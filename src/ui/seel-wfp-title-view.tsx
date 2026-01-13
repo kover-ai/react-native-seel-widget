@@ -13,7 +13,7 @@ import GradientAnimationText, {
   type GradientAnimationTextRef,
 } from './gradient-animation-text';
 import { useRef } from 'react';
-import { NetworkRequestStatusEnum } from '../constants/network_request_status_enum';
+import { NetworkRequestStatusEnum } from '../constants';
 import { ResponseStatusEnum } from '../constants';
 
 export interface SeelWFPTitleViewProps {
