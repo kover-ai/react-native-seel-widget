@@ -57,7 +57,7 @@ export const writeOptOutExpiredTime = async (value: number): Promise<void> => {
   }
 };
 
-export const readOptOutExpiredTime = async () => {
+export const readOptOutExpiredTime = async (): Promise<number> => {
   const key = AsyncStorageKey.OptOutExpiredTime;
   try {
     const value = await AsyncStorage.getItem(key);
