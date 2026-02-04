@@ -62,7 +62,7 @@ const SeelWFPWidget = (
   const [dictionary, setDictionary] = useState<any>({});
   const [price, setPrice] = useState('');
   const [status, setStatus] = useState('');
-  const [loadingStatue, setLoadingStatus] = useState<NetworkRequestStatusEnum>(
+  const [loadingStatus, setLoadingStatus] = useState<NetworkRequestStatusEnum>(
     NetworkRequestStatusEnum.Idle
   );
 
@@ -238,7 +238,7 @@ const SeelWFPWidget = (
             price={price}
             optedIn={optedIn}
             dictionary={dictionary}
-            loadingStatue={loadingStatue}
+            loadingStatus={loadingStatus}
             onClickInfoIcon={() => {
               setModalVisible(true);
             }}

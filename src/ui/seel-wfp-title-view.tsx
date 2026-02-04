@@ -78,7 +78,7 @@ export interface SeelWFPTitleViewProps {
   pressable?: boolean;
   optedIn: boolean;
   dictionary: any;
-  loadingStatue: NetworkRequestStatusEnum;
+  loadingStatus: NetworkRequestStatusEnum;
   onChangeOptedInValue: (optedIn: boolean) => void;
 }
 
@@ -97,7 +97,7 @@ export function SeelWFPTitleView({
   darkPriceStyle,
   optedIn = false,
   dictionary = {},
-  loadingStatue = NetworkRequestStatusEnum.Idle,
+  loadingStatus = NetworkRequestStatusEnum.Idle,
   onClickInfoIcon,
   onChangeOptedInValue = (_: boolean) => {},
 }: SeelWFPTitleViewProps) {
@@ -190,7 +190,7 @@ export function SeelWFPTitleView({
           hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
           onPress={() => {
             // eslint-disable-next-line no-bitwise
-            if ((loadingStatue & NetworkRequestStatusEnum.Success) !== 0) {
+            if ((loadingStatus & NetworkRequestStatusEnum.Success) !== 0) {
               onChangeOptedInValue(!optedIn);
             }
           }}
@@ -216,7 +216,7 @@ export function SeelWFPTitleView({
             ) : null}
 
             {/* eslint-disable-next-line no-bitwise */}
-            {(loadingStatue & NetworkRequestStatusEnum.Loading) === 0 ? (
+            {(loadingStatus & NetworkRequestStatusEnum.Loading) === 0 ? (
               status === ResponseStatusEnum.Accepted ? (
                 <Text style={_priceStyle} adjustsFontSizeToFit>
                   {price}
@@ -231,7 +231,7 @@ export function SeelWFPTitleView({
                 />
               </View>
             )}
-            {loadingStatue === NetworkRequestStatusEnum.Success &&
+            {loadingStatus === NetworkRequestStatusEnum.Success &&
             status === ResponseStatusEnum.Accepted
               ? renderInfoButton()
               : null}
