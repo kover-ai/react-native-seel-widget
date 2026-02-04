@@ -8,6 +8,13 @@ import {
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import type { TextStyle, ViewStyle } from 'react-native';
 
+/** Animation object interface for Animated.loop/timing result */
+interface AnimationHandle {
+  start: (callback?: (result: { finished: boolean }) => void) => void;
+  stop: () => void;
+  reset?: () => void;
+}
+
 export interface GradientAnimationTextProps {
   /**
    * Text content to display
@@ -67,7 +74,7 @@ const GradientAnimationText = forwardRef<
   ) => {
     // Use a larger range for smoother animation across the container
     const translateX = useRef(new Animated.Value(-300)).current;
-    const animationRef = useRef<any>(null);
+    const animationRef = useRef<AnimationHandle | null>(null);
 
     const startAnimation = useCallback(() => {
       // Stop existing animation if any
@@ -94,10 +101,14 @@ const GradientAnimationText = forwardRef<
       }
     }, []);
 
-    useImperativeHandle(ref, () => ({
-      start: startAnimation,
-      stop: stopAnimation,
-    }));
+    useImperativeHandle(
+      ref,
+      () => ({
+        start: startAnimation,
+        stop: stopAnimation,
+      }),
+      [startAnimation, stopAnimation]
+    );
 
     useEffect(() => {
       if (autoStart) {
@@ -127,19 +138,19 @@ const GradientAnimationText = forwardRef<
               <View
                 style={[
                   styles.gradientSection,
-                  { backgroundColor: gradientColors[0] },
+                  { backgroundColor: gradientColors[0] ?? 'transparent' },
                 ]}
               />
               <View
                 style={[
                   styles.gradientSection,
-                  { backgroundColor: gradientColors[1] },
+                  { backgroundColor: gradientColors[1] ?? 'transparent' },
                 ]}
               />
               <View
                 style={[
                   styles.gradientSection,
-                  { backgroundColor: gradientColors[2] },
+                  { backgroundColor: gradientColors[2] ?? 'transparent' },
                 ]}
               />
             </View>
@@ -181,5 +192,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+GradientAnimationText.displayName = 'GradientAnimationText';
 
 export default GradientAnimationText;
