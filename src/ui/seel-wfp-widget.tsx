@@ -1,4 +1,11 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Modal,
   Platform,
@@ -50,7 +57,7 @@ const SeelWFPWidget = (
       logger.info(optedIn, quotesResponse);
     },
   }: SeelWFPWidgetProps,
-  ref: any
+  ref: React.ForwardedRef<SeelWFPWidgetRef>
 ) => {
   const [quotesResponse, setQuotesResponse] = useState<IQuotesResponse>();
   const [termsUrl, setTermsUrl] = useState('');
@@ -66,23 +73,7 @@ const SeelWFPWidget = (
     NetworkRequestStatusEnum.Idle
   );
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      async setup(quote: IQuotesRequest) {
-        const optOutExpiredTime = await readOptOutExpiredTime();
-        const is_default_on =
-          new Date().getTime() < optOutExpiredTime
-            ? (await readOptedIn()) === false
-              ? false
-              : optedIn
-            : optedIn;
-        fetchNetworkData({ ...quote, is_default_on: is_default_on });
-      },
-    }),
-    [optedIn]
-  );
-  async function fetchNetworkData(quote: IQuotesRequest) {
+  const fetchNetworkData = useCallback(async (quote: IQuotesRequest) => {
     try {
       setLoadingStatus(NetworkRequestStatusEnum.Loading);
       const response = await createQuote(quote);
@@ -143,26 +134,54 @@ const SeelWFPWidget = (
       setModalVisible(false);
       setVisible(false);
     }
-  }
+  }, []); // setState functions are stable, no dependencies needed
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      async setup(quote: IQuotesRequest) {
+        const optOutExpiredTime = await readOptOutExpiredTime();
+        const is_default_on =
+          new Date().getTime() < optOutExpiredTime
+            ? (await readOptedIn()) === false
+              ? false
+              : optedIn
+            : optedIn;
+        fetchNetworkData({ ...quote, is_default_on: is_default_on });
+      },
+    }),
+    [fetchNetworkData, optedIn]
+  );
 
   useEffect(() => {
     onChangeValue({ optedIn, quotesResponse });
   }, [onChangeValue, optedIn, quotesResponse]);
 
-  const onChangeOptedInValue = async (value: boolean) => {
-    logger.warn('SeelWFPWidget onChangeValue');
-    setModalVisible(false);
-    if (status === ResponseStatusEnum.Accepted) {
-      await writeOptedIn(value);
-      setOptedIn(value);
-      onChangeValue({ optedIn: value, quotesResponse });
-    } else {
-      setOptedIn(false);
-      onChangeValue({ optedIn: false, quotesResponse });
-    }
-  };
+  const onChangeOptedInValue = useCallback(
+    async (value: boolean) => {
+      logger.debug('SeelWFPWidget onChangeOptedInValue');
+      setModalVisible(false);
+      if (status === ResponseStatusEnum.Accepted) {
+        await writeOptedIn(value);
+        setOptedIn(value);
+        onChangeValue({ optedIn: value, quotesResponse });
+      } else {
+        setOptedIn(false);
+        onChangeValue({ optedIn: false, quotesResponse });
+      }
+    },
+    [status, quotesResponse, onChangeValue]
+  );
 
-  const renderEligibleModalView = () => {
+  const handleCloseModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
+
+  const handleOpenModal = useCallback(() => {
+    setModalVisible(true);
+  }, []);
+
+  const renderEligibleModalView = useCallback(() => {
     return (
       <SeelWFPInfoView
         widgetTitle={widgetTitle}
@@ -170,21 +189,26 @@ const SeelWFPWidget = (
         domain={domain}
         termsUrl={termsUrl}
         privacyPolicyUrl={privacyPolicyUrl}
-        onClickClose={() => {
-          setModalVisible(false);
-        }}
+        onClickClose={handleCloseModal}
         onChangeOptedInValue={onChangeOptedInValue}
       />
     );
-  };
-  const renderIneligibleModalView = () => {
+  }, [
+    widgetTitle,
+    dictionary,
+    domain,
+    termsUrl,
+    privacyPolicyUrl,
+    handleCloseModal,
+    onChangeOptedInValue,
+  ]);
+
+  const renderIneligibleModalView = useCallback(() => {
     const margin = 12;
     return (
       <TouchableOpacity
         style={[defaultStyles.ineligibleModalViewContainer]}
-        onPress={() => {
-          setModalVisible(false);
-        }}
+        onPress={handleCloseModal}
       >
         <View style={[defaultStyles.ineligibleModalView]}>
           <Text
@@ -218,11 +242,14 @@ const SeelWFPWidget = (
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [dictionary, handleCloseModal]);
 
-  const ineligibleStyle = {
-    opacity: 0.6,
-  };
+  const ineligibleStyle = useMemo(
+    () => ({
+      opacity: 0.6,
+    }),
+    []
+  );
   return (
     <View
       style={[
@@ -239,9 +266,7 @@ const SeelWFPWidget = (
             optedIn={optedIn}
             dictionary={dictionary}
             loadingStatus={loadingStatus}
-            onClickInfoIcon={() => {
-              setModalVisible(true);
-            }}
+            onClickInfoIcon={handleOpenModal}
             onChangeOptedInValue={onChangeOptedInValue}
           />
           <Modal
@@ -250,9 +275,7 @@ const SeelWFPWidget = (
             }
             transparent={status === ResponseStatusEnum.Accepted ? false : true}
             visible={visible && modalVisible}
-            onRequestClose={() => {
-              setModalVisible(false);
-            }}
+            onRequestClose={handleCloseModal}
           >
             {status === ResponseStatusEnum.Accepted
               ? renderEligibleModalView()
@@ -262,9 +285,7 @@ const SeelWFPWidget = (
               : null}
           </Modal>
         </View>
-      ) : (
-        <View />
-      )}
+      ) : null}
     </View>
   );
 };
