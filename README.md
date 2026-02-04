@@ -52,6 +52,11 @@ npm install @react-native-async-storage/async-storage
 yarn add @react-native-async-storage/async-storage
 ```
 
+## Requirements
+
+- React Native >= 0.70.0
+- React >= 18.0.0
+
 ## Quick Start
 
 ### Step 1: Configure the SDK
