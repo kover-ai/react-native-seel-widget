@@ -77,6 +77,12 @@ SeelWidgetSDK.shared.configure({
 
 ### Step 2: Use the Widget Component
 
+The widget supports two usage modes: **Manual Mode** and **Auto Mode**.
+
+#### Manual Mode (Recommended for complex scenarios)
+
+Use `ref.setup()` to manually trigger quote requests:
+
 ```tsx
 import React, { useRef, useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -85,72 +91,75 @@ import {
   DomainEnum,
   type IQuotesRequest,
   type IQuotesResponse,
+  type SeelWFPWidgetRef,
 } from 'react-native-seel-widget';
 
 export default function CheckoutPage() {
-  const [domain, setDomain] = useState<DomainEnum>(DomainEnum.US);
+  const seelWidgetRef = useRef<SeelWFPWidgetRef>(null);
   const [request, setRequest] = useState<IQuotesRequest>({
     session_id: 'session-123',
     type: 'checkout',
     device_category: 'mobile',
     device_platform: 'ios',
-    line_items: [
-      {
-        product_id: 'product-123',
-        product_title: 'Example Product',
-        price: 99.99,
-        quantity: 1,
-        image_urls: ['https://example.com/image.jpg'],
-        allocated_discounts: 0,
-        category_1: 'Electronics',
-        category_2: 'Mobile',
-        currency: 'USD',
-        final_price: 99.99,
-        is_final_sale: false,
-        line_item_id: 'line-item-123',
-        requires_shipping: true,
-        sales_tax: 0,
-      },
-    ],
-    customer: {
-      customer_id: 'customer-123',
-      email: 'customer@example.com',
-    },
-    shipping_address: {
-      address1: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      zip: '10001',
-      country: 'US',
-    },
+    line_items: [/* ... */],
+    customer: { customer_id: 'xxx', email: 'xxx@example.com' },
+    shipping_address: { /* ... */ },
+    extra_info: { shipping_fee: 0, total_discounts: 0, total_sales_tax: 0 },
   });
 
-  const seelWidgetRef = useRef<any>(null);
-
   useEffect(() => {
-    if (seelWidgetRef.current) {
-      seelWidgetRef.current.setup(request);
-    }
+    // Manually trigger request when data is ready
+    seelWidgetRef.current?.setup(request);
   }, [request]);
 
   return (
-    <View>
-      <SeelWFPWidget
-        ref={seelWidgetRef}
-        domain={domain}
-        defaultOptedIn={false}
-        onChangeValue={({
-          optedIn,
-          quotesResponse,
-        }: {
-          optedIn: boolean;
-          quotesResponse?: IQuotesResponse;
-        }) => {
-          console.log('Opt-in status:', optedIn);
-          console.log('Quote response:', quotesResponse);
-        }}
-      />
-    </View>
+    <SeelWFPWidget
+      ref={seelWidgetRef}
+      domain={DomainEnum.US}
+      defaultOptedIn={false}
+      onChangeValue={({ optedIn, quotesResponse }) => {
+        console.log('Opt-in:', optedIn, 'Price:', quotesResponse?.price);
+      }}
+    />
+  );
+}
+```
+
+#### Auto Mode (Recommended for simple scenarios)
+
+Let the widget automatically fetch quotes when `request` prop changes:
+
+```tsx
+import React, { useState } from 'react';
+import {
+  SeelWFPWidget,
+  DomainEnum,
+  type IQuotesRequest,
+} from 'react-native-seel-widget';
+
+export default function CheckoutPage() {
+  const [request, setRequest] = useState<IQuotesRequest>({
+    session_id: 'session-123',
+    type: 'checkout',
+    device_category: 'mobile',
+    device_platform: 'ios',
+    line_items: [/* ... */],
+    customer: { customer_id: 'xxx', email: 'xxx@example.com' },
+    shipping_address: { /* ... */ },
+    extra_info: { shipping_fee: 0, total_discounts: 0, total_sales_tax: 0 },
+  });
+
+  return (
+    <SeelWFPWidget
+      domain={DomainEnum.US}
+      request={request}        // Pass request data
+      autoFetch={true}         // Enable auto-fetch
+      debounceMs={500}         // Debounce 500ms (optional)
+      defaultOptedIn={false}
+      onChangeValue={({ optedIn, quotesResponse }) => {
+        console.log('Opt-in:', optedIn, 'Price:', quotesResponse?.price);
+      }}
+    />
   );
 }
 ```
@@ -200,63 +209,68 @@ The main widget component for displaying the Worry-Free Purchase option.
 
 #### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `domain` | `DomainEnum` | Yes | The domain/region (`DomainEnum.US` or `DomainEnum.EU`) |
-| `defaultOptedIn` | `boolean` | No | Default opt-in state (default: `false`) |
-| `onChangeValue` | `(params: { optedIn: boolean; quotesResponse?: IQuotesResponse }) => void` | No | Callback when opt-in status changes |
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `domain` | `DomainEnum` | Yes | - | The domain/region (`DomainEnum.US` or `DomainEnum.EU`) |
+| `defaultOptedIn` | `boolean` | Yes | `false` | Default opt-in state |
+| `onChangeValue` | `(params) => void` | Yes | - | Callback when opt-in status or quote response changes |
+| `request` | `IQuotesRequest` | No | - | Request data for auto-fetch mode |
+| `autoFetch` | `boolean` | No | `false` | Enable auto-fetch when `request` prop changes |
+| `debounceMs` | `number` | No | `300` | Debounce delay in milliseconds for auto-fetch |
 
 #### Ref Methods
 
 ##### `setup(quote: IQuotesRequest)`
 
-Setup the widget with quote request data.
-
-**Parameters:**
-
-- `quote` (IQuotesRequest): The quote request containing line items
-
-**Example:**
+Manually trigger a quote request.
 
 ```tsx
-const quote: IQuotesRequest = {
-  session_id: 'session-123',
-  type: 'checkout',
-  device_category: 'mobile',
-  device_platform: 'ios',
-  line_items: [
-    {
-      product_id: 'product-123',
-      product_title: 'Product Name',
-      price: 99.99,
-      quantity: 1,
-      image_urls: ['https://example.com/image.jpg'],
-      allocated_discounts: 0,
-      category_1: 'Electronics',
-      category_2: 'Mobile',
-      currency: 'USD',
-      final_price: 99.99,
-      is_final_sale: false,
-      line_item_id: 'line-item-123',
-      requires_shipping: true,
-      sales_tax: 0,
-    },
-  ],
-  customer: {
-    customer_id: 'customer-123',
-    email: 'customer@example.com',
-  },
-  shipping_address: {
-    address1: '123 Main St',
-    city: 'New York',
-    state: 'NY',
-    zip: '10001',
-    country: 'US',
-  },
-  is_default_on: false, // Optional: Default opt-in state
+seelWidgetRef.current?.setup(quoteRequest);
+```
+
+##### `refresh()`
+
+Refresh using the last request data. Useful for retry scenarios.
+
+```tsx
+seelWidgetRef.current?.refresh();
+```
+
+##### `cancel()`
+
+Cancel any pending request. Useful when navigating away or resetting state.
+
+```tsx
+seelWidgetRef.current?.cancel();
+```
+
+#### Features
+
+- **Race Condition Handling**: Automatically ignores outdated responses when multiple requests are made rapidly
+- **Debounce Support**: Prevents excessive API calls when `request` changes frequently in auto mode
+- **Cleanup on Unmount**: Automatically cancels pending requests when component unmounts
+
+#### Example: Manual Mode with Refresh
+
+```tsx
+const seelWidgetRef = useRef<SeelWFPWidgetRef>(null);
+
+// Initial setup
+useEffect(() => {
+  seelWidgetRef.current?.setup(request);
+}, []);
+
+// Refresh button handler
+const handleRefresh = () => {
+  seelWidgetRef.current?.refresh();
 };
 
-seelWidgetRef.current?.setup(quote);
+// Cancel on navigation
+useEffect(() => {
+  return () => {
+    seelWidgetRef.current?.cancel();
+  };
+}, []);
 ```
 
 ### IQuotesRequest
@@ -272,6 +286,7 @@ interface IQuotesRequest {
   line_items: IQuotesRequestLineItem[];
   customer: IQuotesRequestCustomer;
   shipping_address: IShippingAddress;
+  extra_info: IQuotesRequestExtraInfo;
   is_default_on?: boolean; // Optional: Default opt-in state
   // ... other optional fields
 }
