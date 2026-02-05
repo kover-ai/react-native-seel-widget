@@ -169,9 +169,22 @@ class Request {
 
       // Use Promise.race to handle timeout
       const response = await Promise.race([fetchPromise, timeoutPromise]);
+
       // Check response status
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to get error details from response body
+        let errorDetails = '';
+        try {
+          const errorBody = await response.text();
+          if (errorBody) {
+            errorDetails = ` - ${errorBody}`;
+          }
+        } catch {
+          // Ignore error parsing failure
+        }
+        throw new Error(
+          `HTTP error! status: ${response.status}${errorDetails}`
+        );
       }
 
       // Parse response data
@@ -180,6 +193,7 @@ class Request {
     } catch (error) {
       // Unified error handling
       if (error instanceof Error) {
+        logger.error('POST request failed:', error.message);
         throw new Error(`POST request failed: ${error.message}`);
       }
       throw new Error('POST request failed: Unknown error');
