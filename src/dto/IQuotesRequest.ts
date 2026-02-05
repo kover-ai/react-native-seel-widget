@@ -31,6 +31,8 @@ export interface IQuotesRequestCustomer {
  */
 export interface IQuotesRequestExtraInfo {
   shipping_fee?: number;
+  total_discounts: number;
+  total_sales_tax: number;
 }
 
 /**
@@ -216,5 +218,5 @@ export interface IQuotesRequest {
   /**
    * Additional information for the quote
    */
-  extra_info?: IQuotesRequestExtraInfo | null;
+  extra_info: IQuotesRequestExtraInfo;
 }
