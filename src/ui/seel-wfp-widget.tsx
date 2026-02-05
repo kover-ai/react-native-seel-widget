@@ -4,6 +4,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -34,12 +35,20 @@ import {
 } from '../utils';
 
 export interface SeelWFPWidgetRef {
+  /** Manually trigger a quote request */
   setup(quote: IQuotesRequest): void;
+  /** Refresh using the last request data (only works in auto mode) */
+  refresh(): void;
+  /** Cancel any pending request */
+  cancel(): void;
 }
 
 interface SeelWFPWidgetProps {
+  /** Domain/region for the widget */
   domain: DomainEnum;
+  /** Default opt-in state */
   defaultOptedIn: boolean;
+  /** Callback when opt-in status or quote response changes */
   onChangeValue: ({
     optedIn,
     quotesResponse,
@@ -47,6 +56,12 @@ interface SeelWFPWidgetProps {
     optedIn: boolean;
     quotesResponse?: IQuotesResponse;
   }) => void;
+  /** Request data for auto-fetch mode */
+  request?: IQuotesRequest;
+  /** Enable auto-fetch when request prop changes (default: false) */
+  autoFetch?: boolean;
+  /** Debounce delay in milliseconds for auto-fetch (default: 300) */
+  debounceMs?: number;
 }
 
 const SeelWFPWidget = (
@@ -56,6 +71,9 @@ const SeelWFPWidget = (
     onChangeValue = ({ optedIn, quotesResponse }) => {
       logger.info(optedIn, quotesResponse);
     },
+    request,
+    autoFetch = false,
+    debounceMs = 300,
   }: SeelWFPWidgetProps,
   ref: React.ForwardedRef<SeelWFPWidgetRef>
 ) => {
@@ -73,15 +91,45 @@ const SeelWFPWidget = (
     NetworkRequestStatusEnum.Idle
   );
 
+  // Request tracking for race condition handling
+  const requestIdRef = useRef(0);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastRequestRef = useRef<IQuotesRequest | null>(null);
+  const isCancelledRef = useRef(false);
+
+  // Cancel pending requests
+  const cancelPendingRequest = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    isCancelledRef.current = true;
+    // Increment requestId to invalidate any in-flight requests
+    requestIdRef.current += 1;
+  }, []);
+
   const fetchNetworkData = useCallback(async (quote: IQuotesRequest) => {
+    // Store the request for potential refresh
+    lastRequestRef.current = quote;
+    // Reset cancelled flag
+    isCancelledRef.current = false;
+    // Generate unique request ID for this request
+    const currentRequestId = ++requestIdRef.current;
+
     try {
       setLoadingStatus(NetworkRequestStatusEnum.Loading);
       const response = await createQuote(quote);
+
+      // Check if this request is still valid (not cancelled or superseded)
+      if (isCancelledRef.current || currentRequestId !== requestIdRef.current) {
+        logger.debug('Request cancelled or superseded, ignoring response');
+        return;
+      }
+
       logger.info('response quote:', quote);
       setLoadingStatus(NetworkRequestStatusEnum.Success);
       setQuotesResponse(response);
       let _status = response.status ?? '';
-      // _status = 'rejected';
       setStatus(_status);
 
       setOptedIn(
@@ -126,9 +174,13 @@ const SeelWFPWidget = (
         setVisible(true);
       } else {
         setModalVisible(false);
-        // setVisible(false);
       }
     } catch (error) {
+      // Check if request was cancelled
+      if (isCancelledRef.current || currentRequestId !== requestIdRef.current) {
+        logger.debug('Request cancelled, ignoring error');
+        return;
+      }
       logger.warn(error);
       setLoadingStatus(NetworkRequestStatusEnum.Failed);
       setModalVisible(false);
@@ -136,10 +188,10 @@ const SeelWFPWidget = (
     }
   }, []); // setState functions are stable, no dependencies needed
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      async setup(quote: IQuotesRequest) {
+  // Internal setup function with debounce support
+  const internalSetup = useCallback(
+    async (quote: IQuotesRequest, useDebounce: boolean = false) => {
+      const executeSetup = async () => {
         const optOutExpiredTime = await readOptOutExpiredTime();
         const is_default_on =
           new Date().getTime() < optOutExpiredTime
@@ -148,11 +200,65 @@ const SeelWFPWidget = (
               : optedIn
             : optedIn;
         fetchNetworkData({ ...quote, is_default_on: is_default_on });
-      },
-    }),
-    [fetchNetworkData, optedIn]
+      };
+
+      if (useDebounce && debounceMs > 0) {
+        // Cancel any pending debounced request
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current);
+        }
+        debounceTimerRef.current = setTimeout(() => {
+          debounceTimerRef.current = null;
+          executeSetup();
+        }, debounceMs);
+      } else {
+        executeSetup();
+      }
+    },
+    [fetchNetworkData, optedIn, debounceMs]
   );
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      setup(quote: IQuotesRequest) {
+        // Manual setup: no debounce
+        internalSetup(quote, false);
+      },
+      refresh() {
+        // Refresh using last request data
+        if (lastRequestRef.current) {
+          internalSetup(lastRequestRef.current, false);
+        } else if (request) {
+          internalSetup(request, false);
+        } else {
+          logger.warn('No request data available for refresh');
+        }
+      },
+      cancel() {
+        cancelPendingRequest();
+        setLoadingStatus(NetworkRequestStatusEnum.Idle);
+      },
+    }),
+    [internalSetup, request, cancelPendingRequest]
+  );
+
+  // Auto-fetch when request prop changes (if autoFetch is enabled)
+  useEffect(() => {
+    if (autoFetch && request) {
+      // Use debounce for auto-fetch to prevent rapid requests
+      internalSetup(request, true);
+    }
+  }, [autoFetch, request, internalSetup]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cancelPendingRequest();
+    };
+  }, [cancelPendingRequest]);
+
+  // Notify parent of changes
   useEffect(() => {
     onChangeValue({ optedIn, quotesResponse });
   }, [onChangeValue, optedIn, quotesResponse]);
