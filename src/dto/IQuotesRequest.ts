@@ -220,3 +220,10 @@ export interface IQuotesRequest {
    */
   extra_info: IQuotesRequestExtraInfo;
 }
+
+export type IQuotesRequestWithoutExtraInfo = Omit<IQuotesRequest, 'extra_info'>;
+
+export type IQuotesRequestWithOptionalExtraInfo =
+  IQuotesRequestWithoutExtraInfo & {
+    extra_info?: IQuotesRequestExtraInfo;
+  };
