@@ -16,6 +16,8 @@ export const mockQuoteEU: IQuotesRequest = {
   device_platform: 'iOS',
   extra_info: {
     shipping_fee: 10,
+    total_discounts: 10.0,
+    total_sales_tax: 10.0,
   },
   merchant_id: '20251217201204133696',
   is_default_on: true,
@@ -102,6 +104,8 @@ export const mockQuoteUS: IQuotesRequest = {
   device_platform: 'iOS',
   extra_info: {
     shipping_fee: 10,
+    total_discounts: 10.0,
+    total_sales_tax: 10.0,
   },
   merchant_id: '20251211204195299886',
   is_default_on: true,
